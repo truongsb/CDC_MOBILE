@@ -2,12 +2,26 @@ import React, { useState, useEffect } from 'react';
 import { Alert, Text, View, StyleSheet, Button, Modal, TouchableHighlight } from 'react-native';
 import { BarCodeScanner } from 'expo-barcode-scanner';
 // import ModalDataCheckQr from './Components/ModalDataCheckQr';
-
+import { VanTaiService } from "../Api/vantan";
+import moment from 'moment';
+const confirmrs = (top, nd) => {
+  Alert.alert(
+    top,
+    nd,
+    [
+      { text: 'OK' },
+    ]
+  )
+}
 export default function QRScreen({ route, navigation }) {
   const { dataLogin } = route.params;
   const [hasPermission, setHasPermission] = useState(null);
+  const [ischeckin, setischeckin] = useState(false);
+  const [isCheckout, setisCheckout] = useState(false);
   const [scanned, setScanned] = useState(false);
   const [showModal, setshowModal] = useState(false);
+  const [infoVantai, setinfoVantai] = useState('');
+  const [ma_to_khai_van_tai, setma_to_khai_van_tai] = useState('')
   useEffect(() => {
     console.log(dataLogin);
   }, [dataLogin])
@@ -17,25 +31,93 @@ export default function QRScreen({ route, navigation }) {
       setHasPermission(status === 'granted');
     })();
   }, []);
-  const conFirmQR =  () => {
-    //setshowModal(!showModal);
-
-    Alert.alert(
-      'Xác nhận thành công!',
-      '',
-      [
-             {text: 'OK', onPress: () => { navigation.navigate('Home', { name: 'Home' }); setshowModal(!showModal)}},
-      ]
-  )
-
-
+  useEffect(() => {
+    //if(í)
+    if (ischeckin) {
+     // gọi hàm checkin
      
-  
+    }
+  }, [ischeckin])
+
+  useEffect(() => {
+    //if(í)
+    if (isCheckout) {
+      //gọi hàm checkout
+    }
+  }, [isCheckout])
+  const conFirmQR = (name) => {
+    //setshowModal(!showModal);
+    if (name === 'checkin') {
+      VanTaiService.checkInVanTai(ma_to_khai_van_tai, dataLogin.ma_diem_den, dataLogin.ma_nhan_vien_check)
+      .then((res) => {
+        if (res.success) {
+          setshowModal(!showModal);
+          Alert.alert(
+            'Thông báo',
+            'Checkin thành công!',
+            [
+              { text: 'OK' , onPress: () => { navigation.navigate('Home', { name: 'Home' });} },
+            ]
+          )
+         console.log("res",res);
+        } else {
+          confirmrs("Lỗi check in!", "")
+        }
+      });
+      
+    }
+    else {
+      setisCheckout(true);
+    }
   }
   const handleBarCodeScanned = ({ type, data }) => {
-    setScanned(true);
-    setshowModal(!showModal);
+
+    if (data != null && data != '') {
+      if (data.indexOf('TKVT_') > -1) {
+        var ma_van_tai = data.replace('TKVT_', '');
+        setma_to_khai_van_tai(ma_van_tai);
+        setScanned(true);
+        VanTaiService.getInfoVanTaibyId(ma_van_tai).then((res) => {
+          if (res.success && res.data != null) {
+            console.log(res.data);
+            setinfoVantai(res.data);
+            convertResultQrScan(res.data)
+          }
+          else {
+
+          }
+        });
+        //setshowModal(!showModal);
+      }
+      else {
+        setScanned(true);
+        Alert.alert("Thông báo", "Không phải tờ khai vận tải! \nVui lòng kiểm tra lại thông tin giấy tờ !")
+      }
+    }
+    else {
+      Alert.alert("Không có dữ liệu!")
+      setScanned(true);
+    }
+
   };
+  const convertResultQrScan = (data) => {
+    console.log('data user',data);
+    console.log(dataLogin);
+    if (data.diem_den && dataLogin != null && data.diem_den.split(',').includes(dataLogin.ma_diem_den.toString())) {
+      setshowModal(!showModal);
+    } else {
+      Alert.alert(
+        "Thông báo",
+        "Điểm đến không nằm trong lộ trình đã đăng ký! \nBạn có muốn CHECKIN cho tài xế?",
+        [{
+          text: 'Có', onPress: () => { setshowModal(!showModal) }
+        },
+        {
+          text: 'Không'
+        }]
+      )
+    }
+  }
 
   if (hasPermission === null) {
     return <Text>Requesting for camera permission</Text>;
@@ -65,23 +147,24 @@ export default function QRScreen({ route, navigation }) {
       >
         <View style={styles.centeredView}>
           <View style={styles.modalView}>
-            <Text style={styles.modalText}>Xe: 93H-02345 </Text>
-            <Text style={styles.modalText}>Số người: 2</Text>
-            <Text style={styles.modalText}>Giờ vào chốt Tân Lập: 12:35</Text>
-            <Text style={styles.modalText}>Thời gian di chuyển: 12:35</Text>
+            <Text style={styles.modalText}>Họ tên : {infoVantai?.ho_ten}  </Text>
+            <Text style={styles.modalText}>Xe: {infoVantai?.bien_so}  </Text>
+            <Text style={styles.modalText}>Số người: {infoVantai?.so_nguoi}</Text>
+            <Text style={styles.modalText}>Vào chốt {infoVantai?.ten_chot_van_tai}: {moment(infoVantai?.thoi_gian_xac_minh).format('HH:mm:ss DD/MM/YYYY')}</Text>
+            {/* <Text style={styles.modalText}>Thời gian di chuyển: 12:35</Text> */}
             <View style={styles.actionButton}>
               <TouchableHighlight style={[styles.buttonContainer, styles.cancelButton]} onPress={() => setshowModal(!showModal)}>
                 <Text style={styles.loginText}>Không</Text>
               </TouchableHighlight>
               {
                 dataLogin.is_checkin &&
-                <TouchableHighlight style={[styles.buttonCheck, styles.loginButton]} onPress={conFirmQR}>
+                <TouchableHighlight style={[styles.buttonCheck, styles.loginButton]} onPress={() => conFirmQR('checkin')}>
                   <Text style={styles.loginText}>Checkin</Text>
                 </TouchableHighlight>
               }
               {
                 dataLogin.is_checkout &&
-                <TouchableHighlight style={[styles.buttonCheck, styles.loginButton]} onPress={conFirmQR}>
+                <TouchableHighlight style={[styles.buttonCheck, styles.loginButton]} onPress={() => conFirmQR('checkout')}>
                   <Text style={styles.loginText}>Checkout</Text>
                 </TouchableHighlight>
               }

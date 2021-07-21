@@ -33,6 +33,7 @@ export default function ListItemCar({ dataLogin, valueSearch }) {
             setisLoadding(true);
             VanTaiService.getDsVanTai(dataLogin.username, dataLogin.ma_diem_den).then((res) => {
                 if (res.success && res.data != null) {
+                    console.log(res.data);
                     convertDataDisplay(res.data);
                 }
                 else {
@@ -103,19 +104,32 @@ export default function ListItemCar({ dataLogin, valueSearch }) {
                                         </ListItem.Content>
                                         <View style={styles.bottonConFirm}>
                                             {dataLogin?.is_checkin &&
-                                                <Button
-                                                    title="Checkin"
-                                                    onPress={(event => btnConFirmClick(event, item.ma_to_khai_van_tai, item.bien_so))}
-                                                    name={item.bien_so}
-                                                    color="white"
-                                                />}
+                                                <View>
+                                                    {!item.is_checked ?
+                                                        <Button
+                                                            title="Checkin"
+                                                            onPress={(event => btnConFirmClick(event, item.ma_to_khai_van_tai, item.bien_so))}
+                                                            name={item.bien_so}
+                                                            color="white"
+                                                        />
+                                                        :
+                                                        <Text>Đã Checkin</Text>
+                                                    }
+                                                </View>
+                                            }
                                             {dataLogin?.is_checkout &&
-                                                <Button
-                                                    title="Checkout"
-                                                    onPress={(event => btnConFirmClick(event, item.ma_to_khai_van_tai, item.bien_so))}
-                                                    name={item.bien_so}
-                                                    color="white"
-                                                />}
+                                                <View>
+                                                    {!item.is_checked ?
+                                                        <Button
+                                                            title="Checkout"
+                                                            onPress={(event => btnConFirmClick(event, item.ma_to_khai_van_tai, item.bien_so))}
+                                                            name={item.bien_so}
+                                                            color="white"
+                                                        />
+                                                        :
+                                                        <Text>Đã Checkout</Text>
+                                                    }
+                                                </View>}
 
                                         </View>
                                     </ListItem>

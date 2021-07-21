@@ -22,14 +22,16 @@ export default function LoginScreen({ LoginClick }) {
         if (so_dien_thoai.length === 10) {
             setisLoadding(true);
             VanTaiService.loginBySdt(so_dien_thoai).then((res) => {
+                setisLoadding(false);
                 if (res.success && res.data != null) {
                     var dataset = { ...res.data, so_dien_thoai };
                     LoginClick(true, res.data)
                 }
                 else {
+                    
                     LoginClick(false, dataset)
                 }
-                setisLoadding(true);
+                
             });
         }
     }

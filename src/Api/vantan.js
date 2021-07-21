@@ -5,6 +5,7 @@ export const VanTaiService = {
     loginBySdt,
     getDsVanTai,
     getInfoVanTaibyId,
+    checkInVanTai
   };
 ///////////////////////////////////////////////////////////////////////////////////////
 async function loginBySdt(sdt) {
@@ -47,10 +48,46 @@ async function getInfoVanTaibyId(ma_to_khai_van_tai) {
     return await axios({
       method: "Get",
       headers: authHeader(),
-      url: `${configs.apiUrl}/api/van-tai/get-to-khai-van-tai`,
+      url: `${configs.apiUrl}/api/app-mobile/get-to-khai-van-tai`,
       params: {
         'ma_to_khai_van_tai' : ma_to_khai_van_tai,
         }
+    }).then((res) => {
+      return res.data;
+    });
+  } catch (error) {
+    return handleError(error);
+  }
+}
+///////////////////////////////////////////////////////////////////////////////////////
+async function checkInVanTai(ma_to_khai_van_tai, ma_diem_den, nguoi_check_in) {
+  // try {
+  //   return await axios({
+  //     method: "POST",
+  //     headers: authHeader(),
+  //     url: `${config.apiUrl}/api/app-mobile/check-in-diem-den`,
+  //     params: {
+  //       'ma_to_khai_van_tai': ma_to_khai_van_tai,
+  //       'ma_diem_den': ma_diem_den,
+  //       'nguoi_check_in': nguoi_check_in
+  //     },
+  //   }).then((res) => {
+  //     return res.json.data;
+  //   });
+  // } catch (error) {
+  //   return handleError(error);
+  // }
+
+  try {
+    return await axios({
+      method: "POST",
+      headers: authHeader(),
+      url: `${configs.apiUrl}/api/app-mobile/check-in-diem-den`,
+      params: {
+          'ma_to_khai_van_tai': ma_to_khai_van_tai,
+          'ma_diem_den': ma_diem_den,
+          'nguoi_check_in': nguoi_check_in
+      }
     }).then((res) => {
       return res.data;
     });
