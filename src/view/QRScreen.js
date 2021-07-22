@@ -50,16 +50,15 @@ export default function QRScreen({ route, navigation }) {
     if (name === 'checkin') {
       VanTaiService.checkInVanTai(ma_to_khai_van_tai, dataLogin.ma_diem_den, dataLogin.ma_nhan_vien_check)
       .then((res) => {
-        if (res.success) {
-          setshowModal(!showModal);
+        if (res.success) {        
           Alert.alert(
             'Thông báo',
             'Checkin thành công!',
             [
-              { text: 'OK' , onPress: () => { navigation.navigate('Home', { name: 'Home' });} },
+              { text: 'OK' , onPress: () => {setshowModal(!showModal); navigation.navigate('Home', { name: 'Home' });} }
             ]
           )
-         console.log("res",res);
+         // 
         } else {
           confirmrs("Lỗi check in!", "")
         }
@@ -79,7 +78,6 @@ export default function QRScreen({ route, navigation }) {
         setScanned(true);
         VanTaiService.getInfoVanTaibyId(ma_van_tai).then((res) => {
           if (res.success && res.data != null) {
-            console.log(res.data);
             setinfoVantai(res.data);
             convertResultQrScan(res.data)
           }
