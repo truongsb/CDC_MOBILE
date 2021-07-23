@@ -160,5 +160,6 @@ const styles = StyleSheet.create({
     },
     scrollView: {
         marginHorizontal: 20,
+        
     },
 });

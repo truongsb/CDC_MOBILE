@@ -61,22 +61,22 @@ async function getInfoVanTaibyId(ma_to_khai_van_tai) {
 }
 ///////////////////////////////////////////////////////////////////////////////////////
 async function checkInVanTai(ma_to_khai_van_tai, ma_diem_den, nguoi_check_in) {
-  // try {
-  //   return await axios({
-  //     method: "POST",
-  //     headers: authHeader(),
-  //     url: `${config.apiUrl}/api/app-mobile/check-in-diem-den`,
-  //     params: {
-  //       'ma_to_khai_van_tai': ma_to_khai_van_tai,
-  //       'ma_diem_den': ma_diem_den,
-  //       'nguoi_check_in': nguoi_check_in
-  //     },
-  //   }).then((res) => {
-  //     return res.json.data;
-  //   });
-  // } catch (error) {
-  //   return handleError(error);
-  // }
+  try {
+    return await axios({
+      method: "POST",
+      headers: authHeader(),
+      url: `${config.apiUrl}/api/app-mobile/check-in-diem-den`,
+      params: {
+        'ma_to_khai_van_tai': ma_to_khai_van_tai,
+        'ma_diem_den': ma_diem_den,
+        'nguoi_check_in': nguoi_check_in
+      },
+    }).then((res) => {
+      return res.json.data;
+    });
+  } catch (error) {
+    return handleError(error);
+  }
 
   try {
     return await axios({
