@@ -49,7 +49,6 @@ export default function LoginScreen({ LoginClick }) {
                     placeholder="Nhập số điện thoại"
                     keyboardType="number-pad"
                     underlineColorAndroid='transparent'
-                    defaultValue='088800483'
                     onChangeText={OnSdtChange} />
             </View>
             {!isLoadding ?
