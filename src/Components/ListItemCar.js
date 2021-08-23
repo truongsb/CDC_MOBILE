@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { ActivityIndicator, Alert, StyleSheet, View, Text, ScrollView, RefreshControl } from 'react-native';
+import { ActivityIndicator, Alert, StyleSheet, View, Text, ScrollView, RefreshControl, TouchableHighlight } from 'react-native';
 import { ListItem, Divider, Button } from 'react-native-elements'
 import { VanTaiService } from '../Api/vantan';
 import moment from "moment";
@@ -10,7 +10,8 @@ export default function ListItemCar({ dataLogin, valueSearch }) {
     const [listXe, setlistXe] = useState('');
     const [listXeFillter, setlistXeFillter] = useState('');
     const btnConFirmClick = (e, id, name) => {
-        createThreeButtonAlert(name);
+        createThreeButtonAlert(e, id, name);
+
     }
     const onRefresh = React.useCallback(() => {
         setrefresh(true);
@@ -33,7 +34,6 @@ export default function ListItemCar({ dataLogin, valueSearch }) {
             setisLoadding(true);
             VanTaiService.getDsVanTai(dataLogin.username, dataLogin.ma_diem_den).then((res) => {
                 if (res.success && res.data != null) {
-                    console.log(res.data);
                     convertDataDisplay(res.data);
                 }
                 else {
@@ -55,7 +55,7 @@ export default function ListItemCar({ dataLogin, valueSearch }) {
             setlistXeFillter(listXe);
         }
     }, [valueSearch])
-    const createThreeButtonAlert = (name) => {
+    const createThreeButtonAlert = (e, id, name) => {
         Alert.alert(
             name,
             'Xác nhận Xe đã đến địa điểm này',
@@ -65,10 +65,42 @@ export default function ListItemCar({ dataLogin, valueSearch }) {
                     onPress: () => console.log("Cancel Pressed"),
                     style: "cancel"
                 },
-                { text: "CÓ", onPress: () => console.log("OK Pressed"), style: "ok" }
+                { text: "CÓ", onPress: () => { if (e === 'checkin') checkin(id); else checkoutTinh(id); }, style: "ok" }
             ]
         )
     };
+    const checkoutTinh = (id) => {
+        VanTaiService.checkOutVanTai(id, dataLogin.ma_nhan_vien_check).then((res) => {
+            if (res.success) {
+                Alert.alert(
+                    'Thông báo',
+                    'Checkout thành công!',
+                    [
+                      { text: 'Xong' , onPress: () => { onRefresh();} }
+                    ]
+                  )                
+            }
+            else {
+
+            }
+        });
+    }
+    const checkin = (id) => {
+        VanTaiService.checkInVanTai(id, dataLogin.ma_diem_den, dataLogin.ma_nhan_vien_check).then((res) => {
+            if (res.success) {
+                Alert.alert(
+                    'Thông báo',
+                    'Checkin thành công!',
+                    [
+                      { text: 'Xong' , onPress: () => { onRefresh();} }
+                    ]
+                  )   
+            } else {
+                //   confirmrs("Lỗi check in!", "")
+            }
+        });
+    }
+
     return (
         <View style={styles.container}>
             {!isLoadding ?
@@ -83,8 +115,6 @@ export default function ListItemCar({ dataLogin, valueSearch }) {
                 >
                     {
                         !(listXeFillter.length > 0) ? <Text style={styles.text}>Không có dữ liệu!</Text> :
-
-
                             listXeFillter.map((item, key) => (
                                 <View key={key}>
                                     <Divider
@@ -106,28 +136,27 @@ export default function ListItemCar({ dataLogin, valueSearch }) {
                                             {dataLogin?.is_checkin &&
                                                 <View>
                                                     {!item.is_checked ?
-                                                        <Button
-                                                            title="Checkin"
-                                                            onPress={(event => btnConFirmClick(event, item.ma_to_khai_van_tai, item.bien_so))}
-                                                            name={item.bien_so}
-                                                            color="white"
-                                                        />
+                                                        <TouchableHighlight
+                                                        style={styles.buttonCheck}
+                                                            onPress={() => { btnConFirmClick("checkin", item.ma_to_khai_van_tai, item.bien_so,) }}>
+                                                            <Text style={styles.loginText}>Checkin</Text>
+                                                        </TouchableHighlight>
                                                         :
-                                                        <Text>Đã Checkin</Text>
+                                                        <Text style={styles.outin}>Đã Checkin</Text>
                                                     }
                                                 </View>
                                             }
                                             {dataLogin?.is_checkout &&
                                                 <View>
-                                                    {!item.is_checked ?
+                                                    {!item.is_checkout ?
                                                         <Button
                                                             title="Checkout"
-                                                            onPress={(event => btnConFirmClick(event, item.ma_to_khai_van_tai, item.bien_so))}
+                                                            onPress={() => { btnConFirmClick("checkout", item.ma_to_khai_van_tai, item.bien_so,) }}
                                                             name={item.bien_so}
                                                             color="white"
                                                         />
                                                         :
-                                                        <Text>Đã Checkout</Text>
+                                                        <Text style={styles.outin}>Đã ra khỏi tỉnh</Text>
                                                     }
                                                 </View>}
 
@@ -160,6 +189,25 @@ const styles = StyleSheet.create({
     },
     scrollView: {
         marginHorizontal: 20,
-        
     },
+    buttonCheck: {
+        height: 40,
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+        color: 'white',
+        borderRadius: 30,
+    },
+    loginText: {
+        color: 'white',
+        fontWeight: 'bold',
+    },
+    outin: {
+        color: 'black',
+        fontWeight: 'bold',
+        backgroundColor:'#c2c2d6',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+
 });

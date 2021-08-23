@@ -5,7 +5,8 @@ export const VanTaiService = {
     loginBySdt,
     getDsVanTai,
     getInfoVanTaibyId,
-    checkInVanTai
+    checkInVanTai,
+    checkOutVanTai,
   };
 ///////////////////////////////////////////////////////////////////////////////////////
 async function loginBySdt(sdt) {
@@ -65,29 +66,48 @@ async function checkInVanTai(ma_to_khai_van_tai, ma_diem_den, nguoi_check_in) {
     return await axios({
       method: "POST",
       headers: authHeader(),
-      url: `${config.apiUrl}/api/app-mobile/check-in-diem-den`,
+      url: `${configs.apiUrl}/api/app-mobile/check-in-diem-den`,
       params: {
         'ma_to_khai_van_tai': ma_to_khai_van_tai,
         'ma_diem_den': ma_diem_den,
         'nguoi_check_in': nguoi_check_in
       },
     }).then((res) => {
-      return res.json.data;
+      return res.data;
     });
   } catch (error) {
     return handleError(error);
   }
+}
 
+//   try {
+//     return await axios({
+//       method: "POST",
+//       headers: authHeader(),
+//       url: `${configs.apiUrl}/api/app-mobile/check-in-diem-den`,
+//       params: {
+//           'ma_to_khai_van_tai': ma_to_khai_van_tai,
+//           'ma_diem_den': ma_diem_den,
+//           'nguoi_check_in': nguoi_check_in
+//       }
+//     }).then((res) => {
+//       return res.data;
+//     });
+//   } catch (error) {
+//     return handleError(error);
+//   }
+// }
+///////////////////////////////////////////////////////////////////////////////////////
+async function checkOutVanTai(ma_to_khai_van_tai,  nguoi_check_out) {
   try {
     return await axios({
       method: "POST",
       headers: authHeader(),
-      url: `${configs.apiUrl}/api/app-mobile/check-in-diem-den`,
+      url: `${configs.apiUrl}/api/app-mobile/check-out-tinh`,
       params: {
-          'ma_to_khai_van_tai': ma_to_khai_van_tai,
-          'ma_diem_den': ma_diem_den,
-          'nguoi_check_in': nguoi_check_in
-      }
+        'ma_to_khai_van_tai': ma_to_khai_van_tai,
+        'nguoi_check_out': nguoi_check_out,
+      },
     }).then((res) => {
       return res.data;
     });

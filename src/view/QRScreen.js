@@ -31,25 +31,10 @@ export default function QRScreen({ route, navigation }) {
       setHasPermission(status === 'granted');
     })();
   }, []);
-  useEffect(() => {
-    //if(í)
-    if (ischeckin) {
-     // gọi hàm checkin
-     
-    }
-  }, [ischeckin])
-
-  useEffect(() => {
-    //if(í)
-    if (isCheckout) {
-      //gọi hàm checkout
-    }
-  }, [isCheckout])
   const conFirmQR = (name) => {
     //setshowModal(!showModal);
     if (name === 'checkin') {
-      VanTaiService.checkInVanTai(ma_to_khai_van_tai, dataLogin.ma_diem_den, dataLogin.ma_nhan_vien_check)
-      .then((res) => {
+      VanTaiService.checkInVanTai(ma_to_khai_van_tai, dataLogin.ma_diem_den, dataLogin.ma_nhan_vien_check).then((res) => {
         if (res.success) {        
           Alert.alert(
             'Thông báo',
@@ -66,7 +51,20 @@ export default function QRScreen({ route, navigation }) {
       
     }
     else {
-      setisCheckout(true);
+      VanTaiService.checkOutVanTai(ma_to_khai_van_tai, dataLogin.ma_nhan_vien_check).then((res) => {
+        if (res.success) {
+           Alert.alert(
+            'Thông báo',
+            'Checkout thành công!',
+            [
+              { text: 'OK' , onPress: () => {setshowModal(!showModal); navigation.navigate('Home', { name: 'Home' });} }
+            ]
+          )
+        }
+        else {
+          confirmrs("Lỗi check in!", "")
+        }
+    });
     }
   }
   const handleBarCodeScanned = ({ type, data }) => {
@@ -78,6 +76,7 @@ export default function QRScreen({ route, navigation }) {
         setScanned(true);
         VanTaiService.getInfoVanTaibyId(ma_van_tai).then((res) => {
           if (res.success && res.data != null) {
+            console.log("??");
             setinfoVantai(res.data);
             convertResultQrScan(res.data)
           }

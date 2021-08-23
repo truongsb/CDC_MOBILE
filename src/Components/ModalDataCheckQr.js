@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Alert, Text, View, StyleSheet, Button, Modal, TouchableHighlight } from 'react-native';
-import { BarCodeScanner } from 'expo-barcode-scanner';
+// import { BarCodeScanner } from 'expo-barcode-scanner';
 
 export default function ModalDataCheckQr({navigation}) {
 
@@ -129,4 +129,4 @@ const styles = StyleSheet.create({
       fontWeight: 'bold',
     }
   });
-  
+}
