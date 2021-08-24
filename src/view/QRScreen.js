@@ -21,10 +21,7 @@ export default function QRScreen({ route, navigation }) {
   const [scanned, setScanned] = useState(false);
   const [showModal, setshowModal] = useState(false);
   const [infoVantai, setinfoVantai] = useState('');
-  const [ma_to_khai_van_tai, setma_to_khai_van_tai] = useState('')
-  useEffect(() => {
-    console.log(dataLogin);
-  }, [dataLogin])
+  const [ma_to_khai_van_tai, setma_to_khai_van_tai] = useState('');
   useEffect(() => {
     (async () => {
       const { status } = await BarCodeScanner.requestPermissionsAsync();
@@ -65,6 +62,7 @@ export default function QRScreen({ route, navigation }) {
           confirmrs("Lỗi check in!", "")
         }
     });
+      //ham checkout
     }
   }
   const handleBarCodeScanned = ({ type, data }) => {
@@ -98,8 +96,6 @@ export default function QRScreen({ route, navigation }) {
 
   };
   const convertResultQrScan = (data) => {
-    console.log('data user',data);
-    console.log(dataLogin);
     if (data.diem_den && dataLogin != null && data.diem_den.split(',').includes(dataLogin.ma_diem_den.toString())) {
       setshowModal(!showModal);
     } else {

@@ -16,8 +16,8 @@ async function loginBySdt(sdt) {
       headers: authHeader(),
       url: `${configs.apiUrl}/api/app-mobile/login-by-sdt`,
       params: {
-        'username' : sdt,
-        }
+        'username': sdt,
+      }
     }).then((res) => {
       return res.data;
     });
@@ -26,16 +26,16 @@ async function loginBySdt(sdt) {
   }
 }
 ///////////////////////////////////////////////////////////////////////////////////////
-async function getDsVanTai(sdt,ma_diem_den) {
+async function getDsVanTai(sdt, ma_diem_den) {
   try {
     return await axios({
       method: "Get",
       headers: authHeader(),
       url: `${configs.apiUrl}/api/app-mobile/get-danh-sach`,
       params: {
-        'username' : sdt,
-        'ma_diem_den' : ma_diem_den,
-        }
+        'username': sdt,
+        'ma_diem_den': ma_diem_den,
+      }
     }).then((res) => {
       return res.data;
     });
@@ -51,8 +51,8 @@ async function getInfoVanTaibyId(ma_to_khai_van_tai) {
       headers: authHeader(),
       url: `${configs.apiUrl}/api/app-mobile/get-to-khai-van-tai`,
       params: {
-        'ma_to_khai_van_tai' : ma_to_khai_van_tai,
-        }
+        'ma_to_khai_van_tai': ma_to_khai_van_tai,
+      }
     }).then((res) => {
       return res.data;
     });
@@ -117,8 +117,8 @@ async function checkOutVanTai(ma_to_khai_van_tai,  nguoi_check_out) {
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 function handleError(error) {
-    if (error.isAxiosError && error.response.status === 401) {
-      // history.push('/login');
-    }
-    return Promise.reject(error);
+  if (error.isAxiosError && error.response.status === 401) {
+    // history.push('/login');
   }
+  return Promise.reject(error);
+}
