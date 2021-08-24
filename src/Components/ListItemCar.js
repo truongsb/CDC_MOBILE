@@ -33,6 +33,7 @@ export default function ListItemCar({ dataUser, valueSearch }) {
         if (data.length > 0) {
             data.map(item => {
                 item.thoi_gian_khai_bao = moment(item.thoi_gian_khai_bao).format('DD/MM/YYYY HH:mm:ss');
+                item.thoi_gian_checkin = moment(item.thoi_gian_checkin).format('DD/MM HH:mm');
             })
             setlistXe(data);
             setlistXeFillter(data);
@@ -143,12 +144,12 @@ export default function ListItemCar({ dataUser, valueSearch }) {
                                     <ListItem bottomDivider>
                                         <ListItem.Content>
                                             <ListItem.Title style={styles.text}>{item.bien_so}</ListItem.Title>
-                                            <ListItem.Subtitle>Tên: <Text style={styles.textTime}>{item.ho_ten}</Text></ListItem.Subtitle>
+                                            <ListItem.Subtitle>Tên: <Text style={styles.textHoten}>{item.ho_ten}</Text></ListItem.Subtitle>
                                             <ListItem.Subtitle>Giờ vào: <Text style={styles.textTime}>{item.thoi_gian_khai_bao}</Text></ListItem.Subtitle>
                                             <ListItem.Subtitle>Tại chốt: {item.noi_khai_bao_van_tai}</ListItem.Subtitle>
                                         </ListItem.Content>
                                         <View>
-                                            { !(item.is_checkout ) &&dataLogin?.is_checkin &&
+                                            {!(item.is_checkout) && dataLogin?.is_checkin &&
                                                 <View >
                                                     {!item.is_checked ?
                                                         <TouchableHighlight
@@ -157,21 +158,25 @@ export default function ListItemCar({ dataUser, valueSearch }) {
                                                             <Text style={styles.loginText}>Checkin</Text>
                                                         </TouchableHighlight>
                                                         :
-                                                        <Text style={styles.outin}>Đã Checkin</Text>
+                                                        <View style={styles.textoutin}>
+                                                            <Text style={styles.outin}>Đã Checkin</Text>
+                                                            <Text style={styles.outin}>{item.thoi_gian_checkin}</Text>
+                                                        </View>
                                                     }
                                                 </View>
                                             }
                                             {dataLogin?.is_checkout &&
                                                 <View>
                                                     {!item.is_checkout ?
-                                                         <TouchableHighlight
-                                                         style={[styles.buttonContainer, styles.checkoutButton]}
-                                                         onPress={() => { btnConFirmClick("checkout", item.ma_to_khai_van_tai, item.bien_so,) }}>
-                                                         <Text style={styles.loginText}>Checkout</Text>
-                                                     </TouchableHighlight>
+                                                        <TouchableHighlight
+                                                            style={[styles.buttonContainer, styles.checkoutButton]}
+                                                            onPress={() => { btnConFirmClick("checkout", item.ma_to_khai_van_tai, item.bien_so,) }}>
+                                                            <Text style={styles.loginText}>Checkout</Text>
+                                                        </TouchableHighlight>
                                                         :
-                                                        <View>
-                                                        <Text style={styles.outin}>Đã ra khỏi tỉnh</Text></View>
+                                                        <View style={styles.textoutin}>
+                                                            <Text style={styles.outin}>Đã ra khỏi tỉnh</Text>
+                                                        </View>
                                                     }
                                                 </View>}
                                         </View>
@@ -197,6 +202,10 @@ const styles = StyleSheet.create({
     textTime: {
         fontWeight: 'bold'
     },
+    textHoten: {
+        fontWeight: 'bold',
+        color: 'black'
+    },
     scrollView: {
         marginHorizontal: 20,
     },
@@ -212,19 +221,20 @@ const styles = StyleSheet.create({
         color: 'white',
         fontWeight: 'bold',
     },
-    textoutin:{
+    textoutin: {
         justifyContent: 'center',
         alignItems: 'center',
     },
-    outin: {
 
-        height: 30,
+    outin: {
+        borderRadius: 15,
         color: 'black',
         fontWeight: 'bold',
         backgroundColor: '#c2c2d6',
         justifyContent: 'center',
         alignItems: 'center',
         marginBottom: 5,
+        padding: 5
     },
     buttonContainer: {
         height: 35,
