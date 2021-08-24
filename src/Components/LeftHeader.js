@@ -1,16 +1,17 @@
-import React, {useEffect} from 'react'
-import { View, Text } from 'react-native'
+import React from 'react'
+import { useDispatch } from "react-redux";
+import { logout } from '../redux/actions';
+import {  DrawerContentScrollView, DrawerItem, DrawerItemList } from '@react-navigation/drawer';
 
-
-export default function LeftHeader({route, navigation}) {
-    const {isLogin} = route.params;
-    useEffect(() => {
-        
-        navigation.navigate('LoginScreen')
-    }, [isLogin])
+export default function LeftHeader(props) {
+    const dispatch = useDispatch();
     return (
-        <View>
-            <Text>123</Text>
-        </View>
+        <DrawerContentScrollView {...props}>
+            <DrawerItemList {...props}/>
+            <DrawerItem
+                label="Đăng xuất"
+                 onPress={() => {props.navigation.closeDrawer(); dispatch(logout())}}
+            />
+        </DrawerContentScrollView>
     )
 }
