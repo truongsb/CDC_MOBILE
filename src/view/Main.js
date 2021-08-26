@@ -29,7 +29,7 @@ function MainScreen({ route }) {
 }
 
 export default function Main123() {
-  const [isLogin, setisLogin] = useState(false);
+  const [isLogin, setisLogin] = useState(true);
   const [dataLogin, setdataLogin] = useState({});
   const isLoginSuccess = useSelector(state => state.login);
   const dtLogin = useSelector(state => state.infoLogin)
@@ -52,7 +52,7 @@ export default function Main123() {
   return (
     <>
       <NavigationContainer>
-        {isLoginSuccess ?
+        {isLogin ?
           <Drawer.Navigator drawerContent={props => <LeftHeader {...props} />}>
             <Drawer.Screen name="MainScreen"
               component={MainScreen}

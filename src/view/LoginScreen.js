@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import {StyleSheet, Text, View, TextInput, ActivityIndicator, TouchableHighlight, Image, Dimensions
+import {StyleSheet, Text, View, TextInput, ActivityIndicator, TouchableHighlight, Image, Dimensions,TouchableWithoutFeedback ,Keyboard
 } from 'react-native';
 import {VanTaiService} from "../Api/vantan";
 import { useDispatch } from "react-redux";
@@ -11,7 +11,7 @@ export default function LoginScreen({ LoginClick,navigation }) {
     const [isLoadding, setisLoadding] = useState(false);
     const [loginFail, setloginFail] = useState(false);
     const [so_dien_thoai, setso_dien_thoai] = useState('');
-    const dispatch = useDispatch();
+    const dispatch = useDispatch();     
     const OnSdtChange = (e) => {
         setso_dien_thoai(e);
         if(e==='')
@@ -40,7 +40,8 @@ export default function LoginScreen({ LoginClick,navigation }) {
     }
 
     return (
-        <View style={styles.container}>
+        <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
+        <View style={styles.container} >
             <View style={styles.tenapp}>
                 <Text style={styles.texttenapp}>KIỂM DỊCH BÌNH PHƯỚC</Text>
             </View>
@@ -54,7 +55,8 @@ export default function LoginScreen({ LoginClick,navigation }) {
                 <TextInput style={styles.inputs}
                     placeholder="Nhập số điện thoại"
                     keyboardType="number-pad"
-                    underlineColorAndroid='transparent'                    onChangeText={OnSdtChange} />
+                    underlineColorAndroid='transparent'
+                    onChangeText={OnSdtChange} />
             </View>
             <View >
                 {loginFail && <Text style ={styles.loginFail}>Tài khoản không đúng</Text>}
@@ -66,6 +68,7 @@ export default function LoginScreen({ LoginClick,navigation }) {
                 : <ActivityIndicator size="small" color="#0000ff" />}
             <Text style = {styles.textVNPT}>@TTCNTT-VNPT BPC</Text>
         </View>
+        </TouchableWithoutFeedback>
     );
 }
 

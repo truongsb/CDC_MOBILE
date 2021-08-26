@@ -3,11 +3,11 @@ const isLoginSuccess = false;
 const initialState = {
     is_checkin: false,
     is_checkout: false,
-    ma_diem_den: '',
-    ma_nhan_vien_check: '',
-    name: "",
+    ma_diem_den: '0',
+    ma_nhan_vien_check: '0',
+    name: "0",
     ten_chot: "",
-    username: ""
+    username: "0"
 }
 export function login(state = isLoginSuccess, action) {
     switch (action.type) {

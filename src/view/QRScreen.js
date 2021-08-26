@@ -29,7 +29,7 @@ export default function QRScreen({ route, navigation }) {
     })();
   }, []);
   const conFirmQR = (name) => {
-    //setshowModal(!showModal);
+    setshowModal(!showModal);
     if (name === 'checkin') {
       VanTaiService.checkInVanTai(ma_to_khai_van_tai, dataLogin.ma_diem_den, dataLogin.ma_nhan_vien_check).then((res) => {
         if (res.success) {        
@@ -66,28 +66,42 @@ export default function QRScreen({ route, navigation }) {
     }
   }
   const handleBarCodeScanned = ({ type, data }) => {
+    console.log('dataQR',data);
 
     if (data != null && data != '') {
-      if (data.indexOf('TKVT_') > -1) {
-        var ma_van_tai = data.replace('TKVT_', '');
-        setma_to_khai_van_tai(ma_van_tai);
-        setScanned(true);
-        VanTaiService.getInfoVanTaibyId(ma_van_tai).then((res) => {
-          if (res.success && res.data != null) {
-            console.log("??");
-            setinfoVantai(res.data);
-            convertResultQrScan(res.data)
-          }
-          else {
+      // if (data.indexOf('TKVT_') > -1) {
+      //   var ma_van_tai = data.replace('TKVT_', '');
+      //   setma_to_khai_van_tai(ma_van_tai);
+      //   setScanned(true);
+      //   VanTaiService.getInfoVanTaibyId(ma_van_tai).then((res) => {
+      //     if (res.success && res.data != null) {
+      //       console.log("??");
+      //       setinfoVantai(res.data);
+      //       convertResultQrScan(res.data)
+      //     }
+      //     else {
 
-          }
-        });
-        //setshowModal(!showModal);
+      //     }
+      //   });
+      //   //setshowModal(!showModal);
+      // }
+      // else {
+      //   setScanned(true);
+      //   Alert.alert("Thông báo", "Không phải tờ khai vận tải! \nVui lòng kiểm tra lại thông tin giấy tờ !")
+      // }
+      setScanned(true);
+      if(data.indexOf('luongxanh.drvn')>0)
+      {
+        navigation.navigate('Home', { url_qr_xanh: data} );
+        Alert.alert(data)
       }
-      else {
-        setScanned(true);
-        Alert.alert("Thông báo", "Không phải tờ khai vận tải! \nVui lòng kiểm tra lại thông tin giấy tờ !")
+      else
+      {
+        navigation.navigate('Home', { name: 'Home' });
+        Alert.alert('Dữ liệu không đúng',data)
       }
+      
+     
     }
     else {
       Alert.alert("Không có dữ liệu!")

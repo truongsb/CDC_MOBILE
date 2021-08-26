@@ -7,6 +7,8 @@ export const VanTaiService = {
     getInfoVanTaibyId,
     checkInVanTai,
     checkOutVanTai,
+    getQrLuongXanh,
+    importQRLuongXanh
   };
 ///////////////////////////////////////////////////////////////////////////////////////
 async function loginBySdt(sdt) {
@@ -112,6 +114,63 @@ async function checkOutVanTai(ma_to_khai_van_tai,  nguoi_check_out) {
       return res.data;
     });
   } catch (error) {
+    return handleError(error);
+  }
+}
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+async function getQrLuongXanh() {
+  try {
+    return await axios({
+      method: "Get",
+      headers: authHeader(),
+      url: 'https://api.anvui.vn/vt/detail-form/78bd4f63-a474-48d2-9f6b-bbc248e1ad79',
+      // params: {
+      //   'username': sdt,
+      // }
+    }).then((res) => {
+      return res.data;
+    });
+  } catch (error) {
+    return handleError(error);
+  }
+}
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// async function importQRLuongXanh(url_qr_xanh,  so_nguoi, xe_qua_canh) {
+//   try {
+//     return await axios({
+//       method: "POST",
+//       headers: authHeader(),
+//       url: `${configs.apiUrl}/api/app-mobile/lay-thong-tin-luong-xanh`,
+//       params: {
+//         'url_qr_xanh': url_qr_xanh,
+//         'so_nguoi': so_nguoi,
+//         'xe_qua_canh': xe_qua_canh,
+//       },
+//     }).then((res) => {
+//       return res.data;
+//     });
+//   } catch (error) {
+//     console.log(error);
+//     return handleError(error);
+//   }
+// }
+///////////////////////////////////////////////////////////////////////////////////////
+async function importQRLuongXanh(url_qr_xanh, so_nguoi, xe_qua_canh) {
+  try {
+    return await axios({
+      method: "POST",
+      headers: authHeader(),
+      url: `${configs.apiUrl}/api/app-mobile/lay-thong-tin-luong-xanh`,
+      params: {
+        'url_qr_xanh': url_qr_xanh,
+        'so_nguoi': so_nguoi,
+        'xe_qua_canh': xe_qua_canh
+      },
+    }).then((res) => {
+      return res.data;
+    });
+  } catch (error) {
+    console.log("error",error);
     return handleError(error);
   }
 }
