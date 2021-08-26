@@ -3,7 +3,8 @@ import { Header, SearchBar } from "react-native-elements";
 import { Text, TouchableOpacity, Image, StyleSheet, View, Alert, ScrollView, TouchableHighlight, ActivityIndicator } from 'react-native';
 import { WebView } from 'react-native-webview';
 import ListItemCar from '../Components/ListItemCar';
-import { useSelector } from 'react-redux';
+import { useSelector,useDispatch } from 'react-redux';
+import { resetUrlQRXanh } from "../redux/actions";
 import { VanTaiService } from '../Api/vantan';
 // import { red } from 'color-name';
 
@@ -17,18 +18,20 @@ const confirmrs = (top, nd) => {
     )
   }
 export default function HomeScreen({ route, navigation }) {
-    const {url_qr_xanh} = route.params;
+    // const {url_qr_xanh} = route.params;
+    const url_qr_xanh = useSelector(state => state.setUrlQRVanTai)
     const [urlQrLuongXanh, seturlQrLuongXanh] = useState('')
     const dataLogin = useSelector(state => state.infoLogin);
     const [so_nguoi, setso_nguoi] = useState(0);
     const [dataTaixe, setdataTaixe] = useState([])
     const [valueSearch, setvalueSearch] = useState('');
     const [isLoadding, setisLoadding] = useState(false);
+    const dispatch = useDispatch();
     const onSearchChange = (e) => {
         setvalueSearch(e)
     }
     useEffect(() => {
-        if(url_qr_xanh != undefined)
+        if(url_qr_xanh !== undefined && url_qr_xanh !== '')
         {
             seturlQrLuongXanh(url_qr_xanh)
         }
@@ -36,6 +39,9 @@ export default function HomeScreen({ route, navigation }) {
             seturlQrLuongXanh('');
         }
     }, [url_qr_xanh])
+    useEffect(() => {
+        console.log('urlQrLuongXanh',urlQrLuongXanh);
+    }, [urlQrLuongXanh])
     // useEffect(() => {
     //     if (urlQrLuongXanh) {
     //         setisLoadding(true);
@@ -66,10 +72,12 @@ export default function HomeScreen({ route, navigation }) {
         navigation.openDrawer();
         // return<LeftHeader/>
     }
-    const conFirmQR = (xe_qua_canh) => {           
+    const conFirmQR = (xe_qua_canh) => {     
+        setisLoadding(true);      
           VanTaiService.importQRLuongXanh(urlQrLuongXanh, so_nguoi, xe_qua_canh).then((res) => {
+            setisLoadding(false); 
             if (res.success) {    
-                seturlQrLuongXanh('')    
+                dispatch(resetUrlQRXanh());   
               Alert.alert(
                 'Thông báo',
                 'Cập nhật thành công!',
@@ -84,6 +92,10 @@ export default function HomeScreen({ route, navigation }) {
           });
           
         }
+    const handleHome = () => {
+        seturlQrLuongXanh('');
+        dispatch(resetUrlQRXanh());
+    }
     const onQRClick = () => {
         navigation.navigate('QrSceen', { name: 'QrSceen', dataLogin: dataLogin })
     }
@@ -92,7 +104,7 @@ export default function HomeScreen({ route, navigation }) {
             <Header
                 leftComponent={{ icon: 'menu', color: '#fff', iconStyle: { color: '#fff' }, onPress: () => OnPressLeftHeader() }}
                 centerComponent={{ text: 'KIỂM DỊCH BÌNH PHƯỚC', style: { color: '#fff', fontSize: 18 } }}
-                rightComponent={{ icon: 'home', color: '#fff' ,onPress: () => seturlQrLuongXanh('') }}
+                rightComponent={{ icon: 'home', color: '#fff' ,onPress: () => handleHome() }}
                 containerStyle={{
                     backgroundColor: '#3D6DC0',
                     justifyContent: 'space-around',
@@ -107,7 +119,9 @@ export default function HomeScreen({ route, navigation }) {
                         source={require('../../public/qr.png')}
                         style={styles.ImageIconStyle}
                     />
+                    
                 </TouchableOpacity>
+                <Text>Nhấn vào để quét mã QR</Text>
             </View>
             <View
                 style={{
@@ -147,12 +161,8 @@ export default function HomeScreen({ route, navigation }) {
                     renderLoading={<ActivityIndicator size="large" />}
                     renderError={<Text style={styles.textFail}>Dữ liệu vừa quét không đúng!</Text>}
                 />:
-                <WebView
-                    source={{ html:`<h1>Không có dữ liệu${urlQrLuongXanh}</h1>` }}
-                    renderLoading={<ActivityIndicator size="large" />}
-                    renderError={<Text style={styles.textFail}>Dữ liệu vừa quét không đúng!</Text>}
-                />}
-                
+                <Text style={styles.textFail}>Không có dữ liệu!</Text>
+                }                
             </View>
             <View
                 style={{
@@ -175,10 +185,12 @@ export default function HomeScreen({ route, navigation }) {
                                 {/* <Text>Không có thông tin tài xế</Text> */}
                                 </View>
                     }
+                    {!isLoadding?
                     <View style={styles.footer}>
-                        <View>
+                        <View  style={{ marginRight: 10 }}>
                             <TouchableHighlight
                                 style={[styles.buttonContainer, styles.checkinButton]}
+                                onPress={() => conFirmQR(0)}
                             >
                                 <Text style={styles.loginText}>Xe quá cảnh</Text>
                             </TouchableHighlight>
@@ -192,6 +204,8 @@ export default function HomeScreen({ route, navigation }) {
                             </TouchableHighlight>
                         </View>
                     </View>
+                    :
+                    <ActivityIndicator size="large" />}
 
                 </View>
                 : 
@@ -213,7 +227,8 @@ const styles = StyleSheet.create({
         fontSize: 20,
         color: 'red',
         fontWeight: 'bold',
-       marginTop: '10%'
+       marginTop: '10%',
+       marginLeft: '30%',
     },
     camera: {
         flex: 1,
@@ -261,21 +276,23 @@ const styles = StyleSheet.create({
     },
     checkinButton: {
         backgroundColor: "#00b33c",
-        width: 100
+        width: '100%',
     },
     checkoutButton: {
         backgroundColor: "#b32400",
-        width: 100
+        width: '100%'
     },
     footer: {
         justifyContent: 'center',
         alignItems: 'center',
         flexDirection: 'row',
-        marginBottom: 30,
+        marginBottom: 40,
         marginTop: 10,
     },
     loginText: {
         color: 'white',
         fontWeight: 'bold',
+        paddingLeft: 5,
+        paddingRight: 5
       }
 });

@@ -4,6 +4,8 @@ import { BarCodeScanner } from 'expo-barcode-scanner';
 // import ModalDataCheckQr from './Components/ModalDataCheckQr';
 import { VanTaiService } from "../Api/vantan";
 import moment from 'moment';
+import { useDispatch } from 'react-redux';
+import { setUrlQRXanh } from "../redux/actions";
 const confirmrs = (top, nd) => {
   Alert.alert(
     top,
@@ -22,6 +24,7 @@ export default function QRScreen({ route, navigation }) {
   const [showModal, setshowModal] = useState(false);
   const [infoVantai, setinfoVantai] = useState('');
   const [ma_to_khai_van_tai, setma_to_khai_van_tai] = useState('');
+  const dispatch = useDispatch();
   useEffect(() => {
     (async () => {
       const { status } = await BarCodeScanner.requestPermissionsAsync();
@@ -66,8 +69,6 @@ export default function QRScreen({ route, navigation }) {
     }
   }
   const handleBarCodeScanned = ({ type, data }) => {
-    console.log('dataQR',data);
-
     if (data != null && data != '') {
       // if (data.indexOf('TKVT_') > -1) {
       //   var ma_van_tai = data.replace('TKVT_', '');
@@ -92,12 +93,14 @@ export default function QRScreen({ route, navigation }) {
       setScanned(true);
       if(data.indexOf('luongxanh.drvn')>0)
       {
-        navigation.navigate('Home', { url_qr_xanh: data} );
-        Alert.alert(data)
+        
+        Alert.alert(data);
+        dispatch(setUrlQRXanh(data));
+        navigation.navigate('Home', { name: 'Home' });
       }
       else
       {
-        navigation.navigate('Home', { name: 'Home' });
+        
         Alert.alert('Dữ liệu không đúng',data)
       }
       
@@ -127,10 +130,10 @@ export default function QRScreen({ route, navigation }) {
   }
 
   if (hasPermission === null) {
-    return <Text>Requesting for camera permission</Text>;
+    return <Text>Yêu cầu quyền truy cập camera</Text>;
   }
   if (hasPermission === false) {
-    return <Text>No access to camera</Text>;
+    return <Text>Không truy cập được camera</Text>;
   }
 
   return (

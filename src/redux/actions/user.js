@@ -17,3 +17,16 @@ export const setInfoLogin = (info) => {
         payload: info
     }
 }
+
+export const setUrlQRXanh = (url) => {
+    return {
+        type: 'GET_SUCCESS',
+        payload: url
+    }
+}
+
+export const resetUrlQRXanh = () => {
+    return {
+        type: 'RESET_QR',
+    }
+}

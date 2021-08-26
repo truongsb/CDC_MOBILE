@@ -9,6 +9,7 @@ const initialState = {
     ten_chot: "",
     username: "0"
 }
+const urlQrLuongXanhVanTai= ''
 export function login(state = isLoginSuccess, action) {
     switch (action.type) {
         case userConstants.LOGIN_SUCCESS:
@@ -38,3 +39,13 @@ export function infoLogin(state = initialState, action) {
     }
 }
 
+export function setUrlQRVanTai(state = urlQrLuongXanhVanTai, action) {
+    switch (action.type) {
+        case 'GET_SUCCESS':
+            return action.payload;
+        case 'RESET_QR':
+            return '';
+        default:
+            return state;
+    }
+}
