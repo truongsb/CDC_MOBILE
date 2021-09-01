@@ -155,11 +155,14 @@ async function getQrLuongXanh() {
 //   }
 // }
 ///////////////////////////////////////////////////////////////////////////////////////
-async function importQRLuongXanh(url_qr_xanh, so_nguoi, xe_qua_canh) {
+async function importQRLuongXanh(url_qr_xanh, so_nguoi, xe_qua_canh,token) {
   try {
     return await axios({
       method: "POST",
-      headers: authHeader(),
+      headers: {
+        'Authorization': 'Bearer ' + token,
+        'Content-Type': 'application/json; charset=utf-8',
+      },
       url: `${configs.apiUrl}/api/app-mobile/lay-thong-tin-luong-xanh`,
       params: {
         'url_qr_xanh': url_qr_xanh,

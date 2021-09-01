@@ -9,6 +9,11 @@ const initialState = {
     ten_chot: "",
     username: "0"
 }
+const initialStateUserlogin = {
+    is_chot: false,
+    token: '',
+    ten_chot: "",
+}
 const urlQrLuongXanhVanTai= ''
 export function login(state = isLoginSuccess, action) {
     switch (action.type) {
@@ -21,18 +26,14 @@ export function login(state = isLoginSuccess, action) {
     }
 }
 
-export function infoLogin(state = initialState, action) {
+export function infoLogin(state = initialStateUserlogin, action) {
     switch (action.type) {
         case userConstants.REGISTER_SUCCESS:
             return {
                 ...state,
-                is_checkin: action.payload.is_checkin,
-                is_checkout: action.payload.is_checkout,
-                ma_diem_den: action.payload.ma_diem_den,
-                ma_nhan_vien_check: action.payload.ma_nhan_vien_check,
-                name: action.payload.name,
                 ten_chot: action.payload.ten_chot,
-                username: action.payload.username
+                is_chot: action.payload.is_chot,
+                token: action.payload.token
             };
         default:
             return state;

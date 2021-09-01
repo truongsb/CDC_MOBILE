@@ -3,6 +3,7 @@
     "name": "CDC_MOBILE",
     "slug": "CDC_MOBILE",
     "version": "1.0.0",
+    "android":{"softwareKeyboardLayoutMode": "pan"},
     "assetBundlePatterns": [
       "**/*"
     ]

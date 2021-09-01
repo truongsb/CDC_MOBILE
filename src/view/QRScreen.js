@@ -91,7 +91,7 @@ export default function QRScreen({ route, navigation }) {
       //   Alert.alert("Thông báo", "Không phải tờ khai vận tải! \nVui lòng kiểm tra lại thông tin giấy tờ !")
       // }
       setScanned(true);
-      if(data.indexOf('luongxanh.drvn')>0)
+      if(data.indexOf('drvn.gov.vn')>0)
       {
         
         Alert.alert(data);
@@ -101,7 +101,7 @@ export default function QRScreen({ route, navigation }) {
       else
       {
         
-        Alert.alert('Dữ liệu không đúng',data)
+        Alert.alert('Không phải dữ liệu từ drvn.gov.vn',data)
       }
       
      
