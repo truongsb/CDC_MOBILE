@@ -23,7 +23,7 @@ export const userService = {
     }
 }
   function handleError(error) {
-    if (error.isAxiosError && error.response.status === 401) {
+    if (error.isAxiosError && error?.response?.status === 401) {
       // history.push('/login');
     }
     return Promise.reject(error);

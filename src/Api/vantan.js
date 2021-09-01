@@ -179,7 +179,7 @@ async function importQRLuongXanh(url_qr_xanh, so_nguoi, xe_qua_canh,token) {
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 function handleError(error) {
-  if (error.isAxiosError && error.response.status === 401) {
+  if (error.isAxiosError && error?.response?.status === 401) {
     // history.push('/login');
   }
   return Promise.reject(error);
