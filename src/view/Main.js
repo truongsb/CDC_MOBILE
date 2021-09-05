@@ -4,6 +4,7 @@ import LoginScreen from './LoginScreen';
 import HomeScreen from './HomeScreen';
 import QRScreen from './QRScreen';
 import LeftHeader from '../Components/LeftHeader'
+import InfoTaixe from './InfoTaixe';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createDrawerNavigator} from '@react-navigation/drawer';
@@ -24,6 +25,7 @@ function MainScreen({ route }) {
         initialParams={{ dataLogin: dataLogin }}
       />
       <MainStack.Screen name="QrSceen" component={QRScreen} options={{ title: 'Quét Mã QR' }} />
+      <MainStack.Screen name="infoTaiXe" component={InfoTaixe} options={{ title: 'Thong tin tai xe' }} />
     </MainStack.Navigator>
   );
 }

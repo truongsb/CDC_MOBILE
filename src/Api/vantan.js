@@ -8,7 +8,8 @@ export const VanTaiService = {
     checkInVanTai,
     checkOutVanTai,
     getQrLuongXanh,
-    importQRLuongXanh
+    importQRLuongXanh,
+    getDanhSachDiemDen
   };
 ///////////////////////////////////////////////////////////////////////////////////////
 async function loginBySdt(sdt) {
@@ -118,15 +119,12 @@ async function checkOutVanTai(ma_to_khai_van_tai,  nguoi_check_out) {
   }
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-async function getQrLuongXanh() {
+async function getQrLuongXanh(id) {
   try {
     return await axios({
       method: "Get",
       headers: authHeader(),
-      url: 'https://api.anvui.vn/vt/detail-form/78bd4f63-a474-48d2-9f6b-bbc248e1ad79',
-      // params: {
-      //   'username': sdt,
-      // }
+      url: `https://vantai.drvn.gov.vn:8081/api/qr/getInfo?token=${id}`,
     }).then((res) => {
       return res.data;
     });
@@ -174,6 +172,20 @@ async function importQRLuongXanh(url_qr_xanh, so_nguoi, xe_qua_canh,token) {
     });
   } catch (error) {
     console.log("error",error);
+    return handleError(error);
+  }
+}
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+async function getDanhSachDiemDen() {
+  try {
+    return await axios({
+      method: "Get",
+      headers: authHeader(),
+      url: `${configs.apiUrl}/api/van-tai/danh-sach-diem-kiem-tra`,
+    }).then((res) => {
+      return res.data;
+    });
+  } catch (error) {
     return handleError(error);
   }
 }

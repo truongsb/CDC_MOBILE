@@ -87,10 +87,10 @@ export default function LoginScreen({ LoginClick, navigation }) {
 
     return (
         <KeyboardAvoidingView
-            behavior={Platform.OS === "ios" ? "padding" : "padding"}
+            behavior={Platform.OS === "ios" ? "padding" : "height"}
             style={styles.container}
         >
-            <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
+            <TouchableWithoutFeedback onPress={() =>Keyboard.dismiss() }>
                 <View style={styles.container} >
                     <View style={styles.tenapp}>
                         <Text style={styles.texttenapp}>KIỂM DỊCH BÌNH PHƯỚC</Text>

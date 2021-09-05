@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, Fragment } from 'react'
 import { Header, SearchBar } from "react-native-elements";
-import { Text, TouchableOpacity, Image, StyleSheet, View, Alert, ScrollView, TouchableHighlight, ActivityIndicator, TextInput } from 'react-native';
+import { Text, TouchableOpacity, Image, StyleSheet, View, Alert, TouchableWithoutFeedback, Keyboard, TouchableHighlight, ActivityIndicator, TextInput } from 'react-native';
 import { WebView } from 'react-native-webview';
 import ListItemCar from '../Components/ListItemCar';
 import { useSelector, useDispatch } from 'react-redux';
@@ -8,6 +8,7 @@ import { resetUrlQRXanh } from "../redux/actions";
 import { VanTaiService } from '../Api/vantan';
 import { ModalQRVanTaiCheckQr } from '../Components/ModalQRVanTaiCheckQr.js'
 import Modal from "react-native-modal";
+import SearchableDropdown from 'react-native-searchable-dropdown';
 // import { red } from 'color-name';
 
 const confirmrs = (top, nd) => {
@@ -31,54 +32,48 @@ export default function HomeScreen({ route, navigation }) {
     const [modalVisible, setModalVisible] = useState(false);
     const [xe_qua_canh, setxe_qua_canh] = useState(0);
     const [eRorrsText, seteRorrsText] = useState(false);
+    const [listDiemden, setlistDiemden] = useState([]);
+    const [selectedListItem, setselectedListItem] = useState([]);
     const dispatch = useDispatch();
     const onSearchChange = (e) => {
         setvalueSearch(e)
     }
     useEffect(() => {
+        setselectedListItem([]);
+    }, [modalVisible])
+    useEffect(() => {
         if (url_qr_xanh !== undefined && url_qr_xanh !== '') {
-            seturlQrLuongXanh('https://vantai.drvn.gov.vn/tokhaiyteQR?token=Mks8QbOx6xXg0RaTQT2OGOCiV6Cv3NOq')
+            seturlQrLuongXanh(url_qr_xanh)
         }
         else {
-            seturlQrLuongXanh('https://vantai.drvn.gov.vn/tokhaiyteQR?token=Mks8QbOx6xXg0RaTQT2OGOCiV6Cv3NOq');
+            seturlQrLuongXanh('');
         }
     }, [url_qr_xanh])
+
     useEffect(() => {
-        console.log('urlQrLuongXanh', urlQrLuongXanh);
-    }, [urlQrLuongXanh])
-    // useEffect(() => {
-    //     if (urlQrLuongXanh) {
-    //         setisLoadding(true);
-    //         VanTaiService.getQrLuongXanh().then((res) => {
-    //             setisLoadding(false)
-    //             console.log(res);
-    //             if (res) {
-    //                 // setdataTaixe(res.drivers)
-    //             }
-    //             else {
-    //                 setdataTaixe([]);
-    //             }
-
-    //             // if (res.success && res.data != null) {
-    //             //   console.log("??");
-    //             //   setinfoVantai(res.data);
-    //             //   convertResultQrScan(res.data)
-    //             // }
-    //             // else {
-
-    //             // }
-    //         });
-    //     }
-    // }, [urlQrLuongXanh])
+        VanTaiService.getDanhSachDiemDen().then((res) => {
+            if (res.success && res.data != null) {
+                setlistDiemden(handleOptions(res.data));
+            }
+        });
+    }, [])
+    const handleOptions = (ds) => {
+        let ls = [];
+        for (const item of ds) {
+            let tem = {};
+            // tem.label = item.ten_diem_den + " - " + item.ten_xa + " - " + item.ten_huyen;
+            tem.name = item.ten_diem_den;
+            tem.id = item.ma_diem_den;
+            ls.push(tem);
+        }
+        return ls;
+    };
     const OnPressLeftHeader = () => {
-        // alert("?")
-        //navigation.navigate('LeftHeader');
         navigation.openDrawer();
-        // return<LeftHeader/>
     }
     const conFirmQR = () => {
         // setModalVisible(!modalVisible);
-        if(so_nguoi!=='' && so_nguoi!=='0'){
+        if (so_nguoi !== '' && so_nguoi !== '0') {
             VanTaiService.importQRLuongXanh(urlQrLuongXanh, so_nguoi, xe_qua_canh, dataLogin.token).then((res) => {
                 setModalVisible(!modalVisible)
                 if (res.success) {
@@ -96,25 +91,21 @@ export default function HomeScreen({ route, navigation }) {
                 }
             });
         }
-        else
-        {
+        else {
             seteRorrsText(true);
         }
-        
+
 
     }
     const handleHome = () => {
         seturlQrLuongXanh('');
         dispatch(resetUrlQRXanh());
     }
-    const onChangeTextSoNguoi = (text) =>
-    {
-        if(text==''|| text=='0')
-        {
+    const onChangeTextSoNguoi = (text) => {
+        if (text == '' || text == '0') {
             seteRorrsText(true)
         }
-        else
-        {
+        else {
             seteRorrsText(false)
         }
         setso_nguoi(text);
@@ -123,6 +114,7 @@ export default function HomeScreen({ route, navigation }) {
         navigation.navigate('QrSceen', { name: 'QrSceen', dataLogin: dataLogin })
     }
     return (
+       
         <View style={styles.container}>
             <Header
                 leftComponent={{ icon: 'menu', color: '#fff', iconStyle: { color: '#fff' }, onPress: () => OnPressLeftHeader() }}
@@ -133,6 +125,7 @@ export default function HomeScreen({ route, navigation }) {
                     justifyContent: 'space-around',
                 }}
             />
+             
             <View style={styles.textChot}>
                 <Text style={styles.textChot}>{dataLogin.ten_chot}</Text>
             </View>
@@ -153,22 +146,55 @@ export default function HomeScreen({ route, navigation }) {
                 }}
             />
             <Modal isVisible={modalVisible}>
+            <TouchableWithoutFeedback onPress={() =>Keyboard.dismiss() }>
                 <View style={styles.centeredView}>
                     <View style={styles.modalView}>
-                        <Text style={styles.modalText}>Số lượng người trên xe: </Text>
-                        <View style={styles.inputContainer}>
-                            <TextInput style={styles.inputs}
-                                placeholder="số người"
-                                keyboardType="number-pad"
-                                underlineColorAndroid='transparent'
-                                placeholderTextColor='#C8C1BF'
-                                require                            
-                                onChangeText={text => onChangeTextSoNguoi(text)} 
-                            />
-                            
+                        <Text style={styles.modalText}>Thông tin người trên xe: </Text>
+
+                        <View style={{ flexDirection: 'row' }}>
+                            <Text style={{ marginTop: 3 }}>Tài xế:</Text>
+                            <View style={{ marginLeft: 30, borderColor: '#555', borderWidth: 1, borderRadius: 5, width: '80%', height: 25, }}>
+                                <TextInput style={styles.inputs}
+                                    placeholder="Nhập tên tài xế"
+                                    keyboardType="default"
+                                    defaultValue="123"
+                                    underlineColorAndroid='transparent'
+                                    placeholderTextColor='#C8C1BF'
+                                    require
+                                    onChangeText={text => onChangeTextSoNguoi(text)}
+                                />
+                            </View>
                         </View>
-                        {eRorrsText? <Text style={{color: 'red', fontStyle: 'italic', marginBottom: 10}}>Số người phải lớn hơn 0</Text> : <View/>}
-                        <View style={{flexDirection: 'row'}}>
+                        <View style={{ flexDirection: 'row', marginTop: 5 }}>
+                            <Text style={{ marginTop: 3 }}>SĐT:</Text>
+                            <View style={{ marginLeft: 40, borderColor: '#555', borderWidth: 1, borderRadius: 5, width: '80%', height: 25 }}>
+                                <TextInput style={styles.inputs}
+                                    placeholder="Nhập tên tài xế"
+                                    keyboardType="default"
+                                    defaultValue="123"
+                                    underlineColorAndroid='transparent'
+                                    placeholderTextColor='#C8C1BF'
+                                    require
+                                    onChangeText={text => onChangeTextSoNguoi(text)}
+                                />
+                            </View>
+                        </View>
+                        <View style={{ flexDirection: 'row', marginTop: 5 }}>
+                            <Text>Số người:</Text>
+                            <View style={styles.inputContainer}>
+                                <TextInput style={styles.inputs}
+                                    placeholder="số người"
+                                    keyboardType="number-pad"
+                                    underlineColorAndroid='transparent'
+                                    placeholderTextColor='#C8C1BF'
+                                    require
+                                    onChangeText={text => onChangeTextSoNguoi(text)}
+                                />
+                            </View>
+                        </View>
+                        {eRorrsText ? <Text style={{ color: 'red', fontStyle: 'italic', marginBottom: 5 }}>Số người phải lớn hơn 0</Text> : <View />}
+                       
+                        <View style={{ flexDirection: 'row' }}>
                             <View style={{ marginRight: 40 }}>
                                 <TouchableHighlight
                                     style={[styles.buttonContainer, styles.buttonCancel]}
@@ -186,40 +212,12 @@ export default function HomeScreen({ route, navigation }) {
                                 </TouchableHighlight>
                             </View>
                         </View>
-                        {/* <Pressable
-                                style={[styles.button, styles.buttonClose]}
-                                onPress={() => setModalVisible(!modalVisible)}
-                            >
-                                <Text style={styles.textStyle}>Hide Modal</Text>
-                            </Pressable> */}
+                        
                     </View>
                 </View>
+                </TouchableWithoutFeedback>
             </Modal>
-            {/* <SearchBar
-                placeholder="Nhập 5 số cuối biển số để tìm kiếm...."
-                onChangeText={onSearchChange}
-                onCancel={onSearchChange}
-                value={valueSearch}
-                containerStyle={{
-                    backgroundColor: 'white',
-                    justifyContent: 'space-around',
-                    height: 50,
-                    borderTopColor: 'transparent',
-                    borderBottomColor: 'transparent',
 
-                }}
-                inputContainerStyle={{
-                    height: 40
-                }}
-            /> */}
-            {/* <ScrollView> */}
-            {/* <ListItemCar
-                    valueSearch={valueSearch}
-                    dataUser={dataLogin}
-                /> */}
-            {/* </ScrollView> */}
-
-            {/* </ScrollView> */}
             <View style={styles.webview}>
                 {urlQrLuongXanh ?
                     <WebView
@@ -231,7 +229,7 @@ export default function HomeScreen({ route, navigation }) {
                         <Text style={styles.textFail}>Chưa có dữ liệu!</Text>
                         <Text style={styles.textFail}>Vui lòng quét mã QR</Text>
                     </View>
-                    
+
                 }
             </View>
             <View
@@ -256,11 +254,12 @@ export default function HomeScreen({ route, navigation }) {
                             </View>
                     }
                     {!isLoadding ?
+                    <View>
                         <View style={styles.footer}>
                             <View style={{ marginRight: 10 }}>
                                 <TouchableHighlight
                                     style={[styles.buttonContainer, styles.checkinButton]}
-                                    onPress={() => {setModalVisible(true); setxe_qua_canh(1);}}
+                                    onPress={() => { setModalVisible(true); setxe_qua_canh(1); }}
                                 >
                                     <Text style={styles.loginText}>Xe quá cảnh</Text>
                                 </TouchableHighlight>
@@ -268,20 +267,83 @@ export default function HomeScreen({ route, navigation }) {
                             <View style={{ marginLeft: 10 }}>
                                 <TouchableHighlight
                                     style={[styles.buttonContainer, styles.checkoutButton]}
-                                    onPress={() => {setModalVisible(true); setxe_qua_canh(0);}}
+                                    onPress={() => {  setxe_qua_canh(0);navigation.navigate('infoTaiXe', { name: 'infoTaiXe' ,id_url_qr: url_qr_xanh}) }}
                                 >
                                     <Text style={styles.loginText}>Xe vào nội tỉnh</Text>
                                 </TouchableHighlight>
                             </View>
                         </View>
+                        <View style={{ marginBottom: 10 }}>
+                            <Text style={{ marginTop: 10 }}>Điểm đến:</Text>
+                            <View>
+                            <SearchableDropdown
+                                placeholderTextColor="red"
+                                multi={true}
+                                items={listDiemden}
+                                containerStyle={{ marginLeft: 5, width: '100%' }}
+                                itemStyle={{
+                                    padding: 5,
+                                    marginTop: 5,
+                                    color: 'black',
+                                    backgroundColor: '#ddd',
+                                    borderColor: '#bbb',
+                                    borderWidth: 1,
+                                    borderRadius: 5,
+                                }}
+                                selectedItems={selectedListItem}
+                                onItemSelect={(item) => {
+                                    const items = selectedListItem;
+                                    items.push(item)
+                                    setselectedListItem(items);
+                                }}
+                                onRemoveItem={(item, index) => {
+                                    const items = selectedListItem.filter((sitem) => sitem.id !== item.id);
+                                    setselectedListItem(items);
+                                }}
+                                
+                                itemTextStyle={{ color: '#555'}}
+                                itemsContainerStyle={{ maxHeight: 150, }}
+                                textInputProps={
+                                    {
+                                        placeholder: "Chọn điểm đến...",
+                                        underlineColorAndroid: "transparent",
+                                        style: {
+                                            height: 30,
+                                            color: '#000',
+                                            borderWidth: 1,
+                                            fontStyle: 'italic',
+                                            //   backgroundColor: 'red',
+                                            borderColor: 'black',
+                                            borderRadius: 5,
+                                        },
+                                        //   onTextChange: text => alert(text)
+                                    }
+                                }
+                                chip={true}
+                                listProps={
+                                    {
+                                        nestedScrollEnabled: false,
+                                        style:{
+                                            color:'red'
+                                        }
+                                    }
+                                }
+                                resetValue={false}
+                            />
+                            </View>
+                        </View>
+                    </View>
                         :
                         <ActivityIndicator size="large" />}
 
                 </View>
                 :
                 <View />
+                
             }
+            
         </View>
+        
     )
 }
 const styles = StyleSheet.create({
@@ -376,7 +438,7 @@ const styles = StyleSheet.create({
         backgroundColor: "#FFFFFF",
         borderRadius: 20,
         padding: 35,
-        alignItems: "center",
+        textAlign: "right",
         shadowColor: "#000",
         shadowOffset: {
             width: 0,
@@ -388,13 +450,14 @@ const styles = StyleSheet.create({
     },
     inputContainer: {
         // borderBottomColor: '#F5FCFF',
+        marginLeft: 10,
         backgroundColor: '#FFFFFF',
-        borderRadius: 20,
+        borderRadius: 5,
         borderWidth: 1,
-        borderColor: 'red',
-        width: '40%',
+        borderColor: '#555',
+        width: '30%',
         fontWeight: "bold",
-        marginBottom: 20,
+        marginBottom: 5,
         flexDirection: 'row',
         alignItems: 'center'
     },
@@ -402,7 +465,7 @@ const styles = StyleSheet.create({
         color: 'red',
         fontWeight: 'bold',
         borderColor: 'red',
-        fontSize: 20,
+        fontSize: 18,
         flex: 1,
         textAlign: 'center',
     },
