@@ -13,8 +13,13 @@ const initialStateUserlogin = {
     is_chot: false,
     token: '',
     ten_chot: "",
+    ma_chot:'',
+    ma_nhan_vien_kc: ''
 }
-const urlQrLuongXanhVanTai= ''
+const urlQrLuongXanhVanTai= {
+    id_qr: '',
+    loai_qr: ''
+}
 export function login(state = isLoginSuccess, action) {
     switch (action.type) {
         case userConstants.LOGIN_SUCCESS:
@@ -33,7 +38,9 @@ export function infoLogin(state = initialStateUserlogin, action) {
                 ...state,
                 ten_chot: action.payload.ten_chot,
                 is_chot: action.payload.is_chot,
-                token: action.payload.token
+                token: action.payload.token,
+                ma_chot:action.payload.ma_chot,
+                ma_nhan_vien_kc:action.payload.ma_nhan_vien_kc
             };
         default:
             return state;
@@ -45,7 +52,7 @@ export function setUrlQRVanTai(state = urlQrLuongXanhVanTai, action) {
         case 'GET_SUCCESS':
             return action.payload;
         case 'RESET_QR':
-            return '';
+            return state;
         default:
             return state;
     }

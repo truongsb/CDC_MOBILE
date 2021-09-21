@@ -26,24 +26,70 @@ export default function HomeScreen({ route, navigation }) {
     const [urlQrLuongXanh, seturlQrLuongXanh] = useState('')
     const dataLogin = useSelector(state => state.infoLogin);
     const [so_nguoi, setso_nguoi] = useState('');
-    const [dataTaixe, setdataTaixe] = useState([])
-    const [valueSearch, setvalueSearch] = useState('');
+    const [bien_so, setbien_so] = useState('');
+    const [ho_ten, setho_ten] = useState('');
+    const [so_dien_thoai, setso_dien_thoai] = useState('');
+    const [dataTaixe, setdataTaixe] = useState([]);
     const [isLoadding, setisLoadding] = useState(false);
     const [modalVisible, setModalVisible] = useState(false);
     const [xe_qua_canh, setxe_qua_canh] = useState(0);
     const [eRorrsText, seteRorrsText] = useState(false);
-    const [listDiemden, setlistDiemden] = useState([]);
-    const [selectedListItem, setselectedListItem] = useState([]);
+    const [eRorrsDiemden, seteRorrsDiemden] = useState(false);
+    const [listDiemDen, setlistDiemden] = useState([]);
+    const [selectedListitem, setselectedListitem] = useState([])
     const dispatch = useDispatch();
     const onSearchChange = (e) => {
         setvalueSearch(e)
     }
     useEffect(() => {
-        setselectedListItem([]);
+        setselectedListitem([]);
+        setso_nguoi('');
     }, [modalVisible])
     useEffect(() => {
-        if (url_qr_xanh !== undefined && url_qr_xanh !== '') {
-            seturlQrLuongXanh(url_qr_xanh)
+        console.log(url_qr_xanh);
+        if (url_qr_xanh && url_qr_xanh.loai_qr !== undefined && url_qr_xanh.loai_qr !== '') {
+            if ( url_qr_xanh.loai_qr === 'TKVT') {
+                VanTaiService.getInfoVanTaibyId(url_qr_xanh.id_qr).then((res) => {
+                    if (res.success && res.data != null) {
+                       console.log(res.data);
+                       setdataTaixe(res.data)
+                       setbien_so(res.data.bien_so);
+                       setho_ten(res.data.ho_ten);
+                       setso_dien_thoai(res.data.so_dien_thoai);
+                       setModalVisible(true);
+                    }
+                    else {
+
+                    }
+                });
+            }
+            else if ( url_qr_xanh.loai_qr === 'DRVN')
+            {
+                console.log("??");
+                //get theo tờ khai vận tải luồng xanh
+                VanTaiService.getQrLuongXanh(url_qr_xanh.id_qr).then((res) => {
+                    
+                    if (res && res.regInfo && res.regInfo.regDrivers &&  res.regInfo.regDrivers.length>0) {
+                        console.log(res.regInfo.regDrivers[0]);
+                    //    setdataTaixe(res.data.map((item) => {
+                    //        return {
+
+                    //        }
+                    //    }))
+                    setho_ten(res.regInfo.regDrivers[0].driverName?res.regInfo.regDrivers[0].driverName:'');
+                    setso_dien_thoai(res.regInfo.regDrivers[0].phoneNumber?res.regInfo.regDrivers[0].phoneNumber:'');
+                    setbien_so(res.regInfo.vehicleNumber?res.regInfo.vehicleNumber:'');
+                    //    setbien_so(res.data.bien_so);
+                    //    setho_ten(res.data.ho_ten);
+                    //    setso_dien_thoai(res.data.so_dien_thoai);
+                    //    setModalVisible(true);
+                    }
+                    else {
+
+                    }
+                });
+            }
+            seturlQrLuongXanh(url_qr_xanh.id_qr)
         }
         else {
             seturlQrLuongXanh('');
@@ -72,30 +118,33 @@ export default function HomeScreen({ route, navigation }) {
         navigation.openDrawer();
     }
     const conFirmQR = () => {
-        // setModalVisible(!modalVisible);
-        if (so_nguoi !== '' && so_nguoi !== '0') {
-            VanTaiService.importQRLuongXanh(urlQrLuongXanh, so_nguoi, xe_qua_canh, dataLogin.token).then((res) => {
-                setModalVisible(!modalVisible)
-                if (res.success) {
-                    dispatch(resetUrlQRXanh());
-                    Alert.alert(
-                        'Thông báo',
-                        'Cập nhật thành công!',
-                        [
-                            { text: 'OK', onPress: () => { } }
-                        ]
-                    )
-                    // 
-                } else {
-                    confirmrs("Lỗi check in!", "")
-                }
-            });
+        
+        if (so_nguoi !== '' && so_nguoi !== '0'&& selectedListitem.id) {
+            console.log(selectedListitem.id,so_nguoi,xe_qua_canh,dataLogin.token, ho_ten, so_dien_thoai, bien_so );
+            // VanTaiService.importQRLuongXanh(urlQrLuongXanh, so_nguoi, xe_qua_canh, dataLogin.token).then((res) => {
+            //     setModalVisible(!modalVisible)
+            //     if (res.success) {
+            //         dispatch(resetUrlQRXanh());
+            //         Alert.alert(
+            //             'Thông báo',
+            //             'Cập nhật thành công!',
+            //             [
+            //                 { text: 'OK', onPress: () => { } }
+            //             ]
+            //         )
+            //         // 
+            //     } else {
+            //         confirmrs("Lỗi check in!", "")
+            //     }
+            // });
         }
-        else {
+        else if(so_nguoi == '' || so_nguoi == '0'){
             seteRorrsText(true);
         }
-
-
+        if(!selectedListitem.id)
+        {
+            seteRorrsDiemden(true);
+        }
     }
     const handleHome = () => {
         seturlQrLuongXanh('');
@@ -113,8 +162,8 @@ export default function HomeScreen({ route, navigation }) {
     const onQRClick = () => {
         navigation.navigate('QrSceen', { name: 'QrSceen', dataLogin: dataLogin })
     }
+
     return (
-       
         <View style={styles.container}>
             <Header
                 leftComponent={{ icon: 'menu', color: '#fff', iconStyle: { color: '#fff' }, onPress: () => OnPressLeftHeader() }}
@@ -125,7 +174,6 @@ export default function HomeScreen({ route, navigation }) {
                     justifyContent: 'space-around',
                 }}
             />
-             
             <View style={styles.textChot}>
                 <Text style={styles.textChot}>{dataLogin.ten_chot}</Text>
             </View>
@@ -135,7 +183,6 @@ export default function HomeScreen({ route, navigation }) {
                         source={require('../../public/qr.png')}
                         style={styles.ImageIconStyle}
                     />
-
                 </TouchableOpacity>
                 <Text>Nhấn vào để quét mã QR</Text>
             </View>
@@ -146,140 +193,73 @@ export default function HomeScreen({ route, navigation }) {
                 }}
             />
             <Modal isVisible={modalVisible}>
-            <TouchableWithoutFeedback onPress={() =>Keyboard.dismiss() }>
-                <View style={styles.centeredView}>
-                    <View style={styles.modalView}>
-                        <Text style={styles.modalText}>Thông tin người trên xe: </Text>
-
-                        <View style={{ flexDirection: 'row' }}>
-                            <Text style={{ marginTop: 3 }}>Tài xế:</Text>
-                            <View style={{ marginLeft: 30, borderColor: '#555', borderWidth: 1, borderRadius: 5, width: '80%', height: 25, }}>
-                                <TextInput style={styles.inputs}
-                                    placeholder="Nhập tên tài xế"
-                                    keyboardType="default"
-                                    defaultValue="123"
-                                    underlineColorAndroid='transparent'
-                                    placeholderTextColor='#C8C1BF'
-                                    require
-                                    onChangeText={text => onChangeTextSoNguoi(text)}
-                                />
+                <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
+                    <View style={styles.centeredView}>
+                        <View style={styles.modalView}>
+                            <Text style={styles.modalText}>Thông tin người trên xe: </Text>
+                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 5 }}>
+                                <Text style={{ marginTop: 3 }}>Tài xế:</Text>
+                                <View style={{  borderColor: '#555', borderWidth: 1, borderRadius: 5, width:'75%', height: 25,}}>
+                                    <TextInput style={styles.inputs}
+                                        placeholder="Nhập tên tài xế"
+                                        keyboardType="default"
+                                        defaultValue={ho_ten}
+                                        underlineColorAndroid='transparent'
+                                        placeholderTextColor='#C8C1BF'
+                                        require
+                                        onChangeText={text => setho_ten(text)}
+                                    />
+                                </View>
                             </View>
-                        </View>
-                        <View style={{ flexDirection: 'row', marginTop: 5 }}>
-                            <Text style={{ marginTop: 3 }}>SĐT:</Text>
-                            <View style={{ marginLeft: 40, borderColor: '#555', borderWidth: 1, borderRadius: 5, width: '80%', height: 25 }}>
-                                <TextInput style={styles.inputs}
-                                    placeholder="Nhập tên tài xế"
-                                    keyboardType="default"
-                                    defaultValue="123"
-                                    underlineColorAndroid='transparent'
-                                    placeholderTextColor='#C8C1BF'
-                                    require
-                                    onChangeText={text => onChangeTextSoNguoi(text)}
-                                />
+                            <View style={{ flexDirection: 'row',justifyContent: 'space-between', marginTop: 5 }}>
+                                <Text style={{ marginTop: 3 }}>SĐT:</Text>
+                                <View style={{ borderColor: '#555', borderWidth: 1, borderRadius: 5, width: '75%', height: 25,  }}>
+                                    <TextInput style={styles.inputs}
+                                        placeholder="SĐT tài xế"
+                                        keyboardType="default"
+                                        defaultValue={so_dien_thoai}
+                                        underlineColorAndroid='transparent'
+                                        placeholderTextColor='#C8C1BF'
+                                        require
+                                        onChangeText={text => setso_dien_thoai(text)}
+                                    />
+                                </View>
                             </View>
-                        </View>
-                        <View style={{ flexDirection: 'row', marginTop: 5 }}>
-                            <Text>Số người:</Text>
-                            <View style={styles.inputContainer}>
-                                <TextInput style={styles.inputs}
-                                    placeholder="số người"
-                                    keyboardType="number-pad"
-                                    underlineColorAndroid='transparent'
-                                    placeholderTextColor='#C8C1BF'
-                                    require
-                                    onChangeText={text => onChangeTextSoNguoi(text)}
-                                />
+                            <View style={{ flexDirection: 'row',justifyContent:'space-between', marginTop: 5 }}>
+                                <Text style={{ marginTop: 3 }}>Biển số:</Text>
+                                <View style={{  borderColor: '#555', borderWidth: 1, borderRadius: 5, width: '75%', height: 25 }}>
+                                    <TextInput style={styles.inputs}
+                                        placeholder="Biển số xe"
+                                        keyboardType="default"
+                                        defaultValue={bien_so}
+                                        underlineColorAndroid='transparent'
+                                        placeholderTextColor='#C8C1BF'
+                                        require
+                                        onChangeText={text => setbien_so(text)}
+                                    />
+                                </View>
                             </View>
-                        </View>
-                        {eRorrsText ? <Text style={{ color: 'red', fontStyle: 'italic', marginBottom: 5 }}>Số người phải lớn hơn 0</Text> : <View />}
-                       
-                        <View style={{ flexDirection: 'row' }}>
-                            <View style={{ marginRight: 40 }}>
-                                <TouchableHighlight
-                                    style={[styles.buttonContainer, styles.buttonCancel]}
-                                    onPress={() => setModalVisible(!modalVisible)}
-                                >
-                                    <Text style={styles.loginText}>Thoát</Text>
-                                </TouchableHighlight>
+                            <View style={{ flexDirection: 'row', marginTop: 5,  }}>
+                                <Text>Số người:</Text>
+                                <View style={styles.inputContainer}>
+                                    <TextInput style={styles.inputs}
+                                        placeholder="số người"
+                                        keyboardType="number-pad"
+                                        underlineColorAndroid='transparent'
+                                        placeholderTextColor='#C8C1BF'
+                                        require
+                                        onChangeText={text => onChangeTextSoNguoi(text)}
+                                    />
+                                </View>
                             </View>
-                            <View style={{ marginLeft: 10 }}>
-                                <TouchableHighlight
-                                    style={[styles.buttonContainer, styles.checkoutButton]}
-                                    onPress={() => conFirmQR()}
-                                >
-                                    <Text style={styles.loginText}>Xác nhận</Text>
-                                </TouchableHighlight>
-                            </View>
-                        </View>
-                        
-                    </View>
-                </View>
-                </TouchableWithoutFeedback>
-            </Modal>
-
-            <View style={styles.webview}>
-                {urlQrLuongXanh ?
-                    <WebView
-                        source={{ uri: `${urlQrLuongXanh}` }}
-                        renderLoading={<ActivityIndicator size="large" color="#00ff00" />}
-                        renderError={<Text style={styles.textFail}>Dữ liệu vừa quét không đúng!</Text>}
-                    /> :
-                    <View>
-                        <Text style={styles.textFail}>Chưa có dữ liệu!</Text>
-                        <Text style={styles.textFail}>Vui lòng quét mã QR</Text>
-                    </View>
-
-                }
-            </View>
-            <View
-                style={{
-                    borderBottomColor: '#2C81C3',
-                    borderBottomWidth: 5,
-                }}
-            />
-            {urlQrLuongXanh ?
-                <View >
-                    {
-                        (dataTaixe.length > 0) ?
-                            <View style={{ flexDirection: 'row' }}>
-                                <Text>Tài xế:</Text>
-                                {dataTaixe.map((item, key) => (
-                                    <Text key={key} style={{ fontWeight: 'bold' }}> {item.name} ,</Text>))
-                                }
-                            </View>
-
-                            : <View>
-                                {/* <Text>Không có thông tin tài xế</Text> */}
-                            </View>
-                    }
-                    {!isLoadding ?
-                    <View>
-                        <View style={styles.footer}>
-                            <View style={{ marginRight: 10 }}>
-                                <TouchableHighlight
-                                    style={[styles.buttonContainer, styles.checkinButton]}
-                                    onPress={() => { setModalVisible(true); setxe_qua_canh(1); }}
-                                >
-                                    <Text style={styles.loginText}>Xe quá cảnh</Text>
-                                </TouchableHighlight>
-                            </View>
-                            <View style={{ marginLeft: 10 }}>
-                                <TouchableHighlight
-                                    style={[styles.buttonContainer, styles.checkoutButton]}
-                                    onPress={() => {  setxe_qua_canh(0);navigation.navigate('infoTaiXe', { name: 'infoTaiXe' ,id_url_qr: url_qr_xanh}) }}
-                                >
-                                    <Text style={styles.loginText}>Xe vào nội tỉnh</Text>
-                                </TouchableHighlight>
-                            </View>
-                        </View>
-                        <View style={{ marginBottom: 10 }}>
-                            <Text style={{ marginTop: 10 }}>Điểm đến:</Text>
+                            {eRorrsText ? <Text style={{ color: 'red', fontStyle: 'italic', marginBottom: 5 }}>Số người phải lớn hơn 0</Text> : <View />}
+                            <View style={{ marginBottom: 10 }}>
+                            <Text >Điểm đến:</Text>
                             <View>
                             <SearchableDropdown
                                 placeholderTextColor="red"
-                                multi={true}
-                                items={listDiemden}
+                                // multi={true}
+                                items={listDiemDen}
                                 containerStyle={{ marginLeft: 5, width: '100%' }}
                                 itemStyle={{
                                     padding: 5,
@@ -290,25 +270,27 @@ export default function HomeScreen({ route, navigation }) {
                                     borderWidth: 1,
                                     borderRadius: 5,
                                 }}
-                                selectedItems={selectedListItem}
+                                selectedItems={selectedListitem}
                                 onItemSelect={(item) => {
-                                    const items = selectedListItem;
-                                    items.push(item)
-                                    setselectedListItem(items);
+                                    // const items = selectedListitem;
+                                    // items.push(item)
+                                    setselectedListitem(item);
+                                    seteRorrsDiemden(false);
                                 }}
                                 onRemoveItem={(item, index) => {
-                                    const items = selectedListItem.filter((sitem) => sitem.id !== item.id);
-                                    setselectedListItem(items);
+                                    setselectedListitem([]);
                                 }}
                                 
                                 itemTextStyle={{ color: '#555'}}
                                 itemsContainerStyle={{ maxHeight: 150, }}
+                                resetValue={false}
                                 textInputProps={
                                     {
                                         placeholder: "Chọn điểm đến...",
                                         underlineColorAndroid: "transparent",
                                         style: {
                                             height: 30,
+                                            paddingLeft: 5,
                                             color: '#000',
                                             borderWidth: 1,
                                             fontStyle: 'italic',
@@ -319,7 +301,7 @@ export default function HomeScreen({ route, navigation }) {
                                         //   onTextChange: text => alert(text)
                                     }
                                 }
-                                chip={true}
+                                
                                 listProps={
                                     {
                                         nestedScrollEnabled: false,
@@ -330,20 +312,85 @@ export default function HomeScreen({ route, navigation }) {
                                 }
                                 resetValue={false}
                             />
+                            {eRorrsDiemden ? <Text style={{ color: 'red', fontStyle: 'italic', marginBottom: 5 }}>Xác định điểm đến cho tài xế</Text> : <View />}
+                            </View>
+                        </View>
+                            <View style={{ flexDirection: 'row' , justifyContent:'space-between'}}>
+                                <View >
+                                    <TouchableHighlight
+                                        style={[styles.buttonContainer, styles.buttonCancel]}
+                                        onPress={() => setModalVisible(!modalVisible)}
+                                    >
+                                        <Text style={styles.loginText}>Thoát</Text>
+                                    </TouchableHighlight>
+                                </View>
+                                <View >
+                                    <TouchableHighlight
+                                        style={[styles.buttonContainer, styles.checkoutButton]}
+                                        onPress={() => conFirmQR()}
+                                    >
+                                        <Text style={styles.loginText}>Xác nhận</Text>
+                                    </TouchableHighlight>
+                                </View>
                             </View>
                         </View>
                     </View>
+                </TouchableWithoutFeedback>
+            </Modal>
+
+            <View style={styles.webview}>
+                {urlQrLuongXanh ?
+                    <WebView
+                        source={{ uri: `https://vantai.drvn.gov.vn/tokhaiyteQR?token=${urlQrLuongXanh}` }}
+                        renderLoading={<ActivityIndicator size="large" color="#00ff00" />}
+                        renderError={<Text style={styles.textFail}>Dữ liệu vừa quét không đúng!</Text>}
+                    /> :
+                    <View style={{ alignItems: 'center' }}>
+                        <Text style={styles.textFail}>Chưa có dữ liệu!</Text>
+                        <Text style={styles.textFail}>Vui lòng quét mã QR</Text>
+                    </View>
+                }
+            </View>
+            <View
+                style={{
+                    borderBottomColor: '#2C81C3',
+                    borderBottomWidth: 5,
+                }}
+            />
+            {urlQrLuongXanh ?
+                <View >
+                    {!isLoadding ?
+                        <View>
+                            <View style={styles.footer}>
+                                <View style={{ width: '30%' }}>
+                                    <TouchableHighlight
+                                        style={[styles.buttonContainer, styles.checkinButton]}
+                                        onPress={() => { setModalVisible(true); setxe_qua_canh(1); }}
+                                    >
+                                        <Text style={styles.loginText}>Xe quá cảnh</Text>
+                                    </TouchableHighlight>
+                                </View>
+                                <View style={{ width: '10%' }} />
+                                <View style={{ width: '30%' }}>
+                                    <TouchableHighlight
+                                        style={[styles.buttonContainer, styles.checkoutButton]}
+                                        onPress={() => { setxe_qua_canh(0); setModalVisible(true) }}
+                                    >
+                                        <Text style={styles.loginText}>Xe nội tỉnh</Text>
+                                    </TouchableHighlight>
+                                </View>
+                            </View>
+                            
+                        </View>
                         :
                         <ActivityIndicator size="large" />}
 
                 </View>
                 :
                 <View />
-                
+
             }
-            
         </View>
-        
     )
 }
 const styles = StyleSheet.create({
@@ -352,15 +399,11 @@ const styles = StyleSheet.create({
     },
     webview: {
         flex: 1,
-        // marginBottom: 60
-        // alignItems: 'center',
     },
     textFail: {
         fontSize: 20,
         color: 'red',
         fontWeight: 'bold',
-        marginTop: '10%',
-        marginLeft: '30%',
     },
     camera: {
         flex: 1,
@@ -400,23 +443,24 @@ const styles = StyleSheet.create({
     },
     buttonContainer: {
         height: 38,
-
+        // width: '120%',
         justifyContent: 'center',
         alignItems: 'center',
-        marginBottom: 5,
+        // marginBottom: 5,
         borderRadius: 15,
     },
     checkinButton: {
         backgroundColor: "#00b33c",
-        width: '100%',
+
     },
     checkoutButton: {
         backgroundColor: "#b32400",
-        width: '100%'
+
     },
     footer: {
+        
         justifyContent: 'center',
-        alignItems: 'center',
+        // alignItems: 'center',
         flexDirection: 'row',
         marginBottom: 40,
         marginTop: 10,
@@ -449,13 +493,12 @@ const styles = StyleSheet.create({
         elevation: 5
     },
     inputContainer: {
-        // borderBottomColor: '#F5FCFF',
         marginLeft: 10,
         backgroundColor: '#FFFFFF',
         borderRadius: 5,
         borderWidth: 1,
         borderColor: '#555',
-        width: '30%',
+        width: '40%',
         fontWeight: "bold",
         marginBottom: 5,
         flexDirection: 'row',
@@ -465,7 +508,7 @@ const styles = StyleSheet.create({
         color: 'red',
         fontWeight: 'bold',
         borderColor: 'red',
-        fontSize: 18,
+        fontSize: 16,
         flex: 1,
         textAlign: 'center',
     },
@@ -476,5 +519,9 @@ const styles = StyleSheet.create({
     buttonCancel: {
         backgroundColor: "#C8C1BF",
         width: '150%',
+    },
+    tttb_content_noidung: {
+        flexDirection: 'column',
+
     }
 });

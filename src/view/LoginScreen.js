@@ -1,9 +1,9 @@
 import React, { useState,useEffect } from "react";
 import {
-    StyleSheet, Text, View, TextInput, ActivityIndicator, TouchableHighlight, Image, Dimensions, TouchableWithoutFeedback, Keyboard, Platform, KeyboardAvoidingView
+    StyleSheet, Text, View, TextInput, ActivityIndicator, TouchableHighlight, Image, Dimensions, TouchableWithoutFeedback, Keyboard, Platform, KeyboardAvoidingView, Alert
 } from 'react-native';
 import { VanTaiService } from "../Api/vantan";
-import { useDispatch } from "react-redux";
+import { useDispatch ,useSelector} from "react-redux";
 import { loginSuccess, setInfoLogin } from "../redux/actions";
 import { CheckBox } from 'react-native-elements'
 import { userService } from "../Api/user";
@@ -12,7 +12,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const windowWidth = Dimensions.get('window').width;
 
-export default function LoginScreen({ LoginClick, navigation }) {
+export default function LoginScreen({  }) {
     const [isLoadding, setisLoadding] = useState(false);
     const [loginFail, setloginFail] = useState(false);
     const [so_dien_thoai, setso_dien_thoai] = useState('');
@@ -20,6 +20,7 @@ export default function LoginScreen({ LoginClick, navigation }) {
     const [passWord, setPassWord] = useState('')
     const [checkedMemouUserPW, setCheckedMemouUserPW] = useState(false);
     const dispatch = useDispatch();
+    const isLoginSuccess = useSelector(state => state.login);
 
     useEffect(() => {
         AsyncStorage.getItem('UserCDC',(err, result) => {
@@ -44,8 +45,6 @@ export default function LoginScreen({ LoginClick, navigation }) {
         else {
             setisLoadding(true);
             userService.login(userName, passWord).then((res) => {
-                console.log('userName',userName);
-                console.log('passWord',passWord);
                 setisLoadding(false);
                 if (res.success && res.data != null) {
                     if(res.data.is_chot)
@@ -57,21 +56,25 @@ export default function LoginScreen({ LoginClick, navigation }) {
                             username: userName,
                             password: passWord
                         }
-                        console.log('checkedMemouUserPW',checkedMemouUserPW);
+                        // console.log('checkedMemouUserPW',checkedMemouUserPW);
                         if(checkedMemouUserPW)
                         {
                             AsyncStorage.setItem('UserCDC', JSON.stringify(info));
                         }
                         else{
                             AsyncStorage.removeItem('UserCDC', (err, result) => {
-                                console.log('rsremove',result);
+                                // console.log('rsremove',result);
                             })
                         }
                        
                     }
-                    else
+                    else if(!res.success)
                     {
                         setloginFail(true);
+                    }
+                    else
+                    {
+                        Alert.alert('Thông báo','Bạn không có quyền truy cập')
                     }
                     
                    
