@@ -117,8 +117,7 @@ export default function HomeScreen({ route, navigation }) {
     const OnPressLeftHeader = () => {
         navigation.openDrawer();
     }
-    const conFirmQR = () => {
-        
+    const conFirmQR = () => {  
         if (so_nguoi !== '' && so_nguoi !== '0'&& selectedListitem.id) {
             console.log(selectedListitem.id,so_nguoi,xe_qua_canh,dataLogin.token, ho_ten, so_dien_thoai, bien_so );
             // VanTaiService.importQRLuongXanh(urlQrLuongXanh, so_nguoi, xe_qua_canh, dataLogin.token).then((res) => {
@@ -321,7 +320,7 @@ export default function HomeScreen({ route, navigation }) {
                                         style={[styles.buttonContainer, styles.buttonCancel]}
                                         onPress={() => setModalVisible(!modalVisible)}
                                     >
-                                        <Text style={styles.loginText}>Thoát</Text>
+                                        <Text style={styles.loginText}>Quay lại</Text>
                                     </TouchableHighlight>
                                 </View>
                                 <View >
@@ -365,7 +364,7 @@ export default function HomeScreen({ route, navigation }) {
                                 <View style={{ width: '30%' }}>
                                     <TouchableHighlight
                                         style={[styles.buttonContainer, styles.checkinButton]}
-                                        onPress={() => { setModalVisible(true); setxe_qua_canh(1); }}
+                                        onPress={() => { navigation.navigate('infoTaiXe', { name: 'infoTaiXe',xe_qua_canh:1}); }}
                                     >
                                         <Text style={styles.loginText}>Xe quá cảnh</Text>
                                     </TouchableHighlight>
@@ -374,7 +373,7 @@ export default function HomeScreen({ route, navigation }) {
                                 <View style={{ width: '30%' }}>
                                     <TouchableHighlight
                                         style={[styles.buttonContainer, styles.checkoutButton]}
-                                        onPress={() => { setxe_qua_canh(0); setModalVisible(true) }}
+                                        onPress={() => { navigation.navigate('infoTaiXe', { name: 'infoTaiXe',xe_qua_canh:0}); }}
                                     >
                                         <Text style={styles.loginText}>Xe nội tỉnh</Text>
                                     </TouchableHighlight>

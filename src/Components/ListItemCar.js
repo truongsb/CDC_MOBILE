@@ -3,6 +3,7 @@ import { ActivityIndicator, Alert, StyleSheet, View, Text, ScrollView, RefreshCo
 import { ListItem, Divider, Button } from 'react-native-elements'
 import { VanTaiService } from '../Api/vantan';
 import moment from "moment";
+import { useSelector } from 'react-redux';
 const confirmrs = (top, nd) => {
     Alert.alert(
         top,
@@ -17,11 +18,11 @@ export default function ListItemCar({ dataUser, valueSearch }) {
     const [isLoadding, setisLoadding] = useState(false);
     const [listXe, setlistXe] = useState('');
     const [listXeFillter, setlistXeFillter] = useState('');
-    const [dataLogin, setdataLogin] = useState(dataUser);
+    const dataLogin = useSelector(state => state.infoLogin);
 
-    useEffect(() => {
-        setdataLogin(dataUser);
-    }, [dataUser]);
+    // useEffect(() => {
+    //     setdataLogin(dataUser);
+    // }, [dataUser]);
     const btnConFirmClick = (e, id, name) => {
         createThreeButtonAlert(e, id, name);
 
@@ -30,6 +31,7 @@ export default function ListItemCar({ dataUser, valueSearch }) {
         setrefresh(true);
     }, []);
     const convertDataDisplay = (data) => {
+        console.log(data);
         if (data.length > 0) {
             data.map(item => {
                 item.thoi_gian_khai_bao = moment(item.thoi_gian_khai_bao).format('DD/MM/YYYY HH:mm:ss');
@@ -47,6 +49,7 @@ export default function ListItemCar({ dataUser, valueSearch }) {
         if (dataLogin != null && refresh && dataLogin.username != "") {
             setisLoadding(true);
             VanTaiService.getDsVanTai(dataLogin.username, dataLogin.ma_diem_den).then((res) => {
+                console.log(res.data);
                 if (res.success && res.data != null) {
                     convertDataDisplay(res.data);
                     console.log(res.data);

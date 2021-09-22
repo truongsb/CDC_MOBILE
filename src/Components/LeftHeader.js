@@ -9,9 +9,14 @@ export default function LeftHeader(props) {
         <DrawerContentScrollView {...props}>
             <DrawerItemList {...props}/>
             <DrawerItem
+                label="Danh sách Đã khai báo"
+                onPress={() => {props.navigation.navigate('DanhSachDaKhaiBao', { name: 'DanhSachDaKhaiBao' })}}
+            />
+            <DrawerItem
                 label="Đăng xuất"
                  onPress={() => {props.navigation.closeDrawer(); dispatch(logout())}}
             />
+
         </DrawerContentScrollView>
     )
 }
