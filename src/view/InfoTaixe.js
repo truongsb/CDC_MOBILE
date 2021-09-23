@@ -2,15 +2,14 @@ import React, { useEffect, useState } from 'react'
 import { Text, TouchableOpacity, Image, StyleSheet, View, Alert, TouchableWithoutFeedback, Keyboard, TouchableHighlight, ActivityIndicator, TextInput } from 'react-native';
 import SearchableDropdown from 'react-native-searchable-dropdown';
 import { VanTaiService } from '../Api/vantan';
-import { useSelector } from 'react-redux';
-
+import { resetUrlQRXanh } from "../redux/actions";
+import { useSelector, useDispatch } from 'react-redux';
 
 export default function InfoTaixe({ route, navigation }) {
+    const dispatch = useDispatch();
     const { xe_qua_canh } = route.params;
     const dataLogin = useSelector(state => state.infoLogin);
-    const [urlQrLuongXanh, seturlQrLuongXanh] = useState('')
     const url_qr_xanh = useSelector(state => state.setUrlQRVanTai)
-    const [thongTinTaiXe, setThongTinTaiXe] = useState([]);
     const [eRorrsText, seteRorrsText] = useState(false);
     const [eRorrsDiemden, seteRorrsDiemden] = useState(false);
     const [listDiemDen, setlistDiemden] = useState([]);
@@ -32,52 +31,36 @@ export default function InfoTaixe({ route, navigation }) {
         });
     }, []);
     useEffect(() => {
-        console.log(url_qr_xanh);
         if (url_qr_xanh && url_qr_xanh.loai_qr !== undefined && url_qr_xanh.loai_qr !== '') {
+            console.log('url_qr_xanh',url_qr_xanh);
             if (url_qr_xanh.loai_qr === 'TKVT') {
                 VanTaiService.getInfoVanTaibyId(url_qr_xanh.id_qr).then((res) => {
                     if (res.success && res.data != null) {
-                        console.log(res.data);
-                        setdataTaixe(res.data)
                         setbien_so(res.data.bien_so);
                         setho_ten(res.data.ho_ten);
                         setso_dien_thoai(res.data.so_dien_thoai);
-                        setModalVisible(true);
                     }
                     else {
-
+                        Alert.alert('Thông báo', 'Không lấy được dữ liệu tài xế');
                     }
                 });
             }
             else if (url_qr_xanh.loai_qr === 'DRVN') {
-                console.log("??");
                 //get theo tờ khai vận tải luồng xanh
                 VanTaiService.getQrLuongXanh(url_qr_xanh.id_qr).then((res) => {
-
                     if (res && res.regInfo && res.regInfo.regDrivers && res.regInfo.regDrivers.length > 0) {
-                        console.log(res.regInfo.regDrivers[0]);
-                        //    setdataTaixe(res.data.map((item) => {
-                        //        return {
-
-                        //        }
-                        //    }))
                         setho_ten(res.regInfo.regDrivers[0].driverName ? res.regInfo.regDrivers[0].driverName : '');
                         setso_dien_thoai(res.regInfo.regDrivers[0].phoneNumber ? res.regInfo.regDrivers[0].phoneNumber : '');
                         setbien_so(res.regInfo.vehicleNumber ? res.regInfo.vehicleNumber : '');
-                        //    setbien_so(res.data.bien_so);
-                        //    setho_ten(res.data.ho_ten);
-                        //    setso_dien_thoai(res.data.so_dien_thoai);
-                        //    setModalVisible(true);
                     }
                     else {
-
+                        Alert.alert('Thông báo', 'Không lấy được dữ liệu tài xế');
                     }
                 });
             }
-            // seturlQrLuongXanh(url_qr_xanh.id_qr)
         }
         else {
-            seturlQrLuongXanh('');
+
         }
     }, [url_qr_xanh])
 
@@ -92,10 +75,12 @@ export default function InfoTaixe({ route, navigation }) {
                 else {
                     //gọi api xe nội tỉnh
                     console.log(selectedListitem.id, so_nguoi, xe_qua_canh, dataLogin.token, ho_ten, so_dien_thoai, bien_so,'setdiem_den_chi_tiet', diem_den_chi_tiet);
+                    handleBackHome();
                 }
             }
             else if (xe_qua_canh === 1) {
                 console.log('', so_nguoi, xe_qua_canh, dataLogin.token, ho_ten, so_dien_thoai, bien_so);
+                handleBackHome();
                 //gọi api cho xe quá cảnh
                 // VanTaiService.importQRLuongXanh(urlQrLuongXanh, so_nguoi, xe_qua_canh, dataLogin.token).then((res) => {
                 //     setModalVisible(!modalVisible)
@@ -143,6 +128,10 @@ export default function InfoTaixe({ route, navigation }) {
             seteRorrsText(false)
         }
         setso_nguoi(text);
+    }
+    const handleBackHome = () => {
+        dispatch(resetUrlQRXanh());
+        navigation.navigate('Home', { name: 'Home' })
     }
     return (
         <View style={styles.container}>
@@ -278,7 +267,7 @@ export default function InfoTaixe({ route, navigation }) {
                         <View >
                             <TouchableHighlight
                                 style={[styles.buttonContainer, styles.buttonCancel]}
-                                onPress={() => navigation.navigate('Home', { name: 'Home' })}
+                                onPress={() =>handleBackHome() }
                             >
                                 <Text style={styles.loginText}>Quay lại</Text>
                             </TouchableHighlight>

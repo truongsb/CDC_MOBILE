@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Alert, Text, View, StyleSheet, Button, } from 'react-native';
 import { BarCodeScanner } from 'expo-barcode-scanner';
-import { VanTaiService } from "../Api/vantan";
 import { useDispatch } from 'react-redux';
 import { setUrlQRXanh } from "../redux/actions";
 
@@ -23,7 +22,7 @@ export default function QRScreen({ navigation }) {
       console.log(data);
       if(data.indexOf('drvn.gov.vn')>0 && data.indexOf('TKVT_')<0)
       {
-        Alert.alert(data);
+        Alert.alert('Tải dữ liệu từ: ',data);
         let id = data.substring(data.lastIndexOf("token=")+6);
         dispatch(setUrlQRXanh({id_qr:id, loai_qr:'DRVN'}));
         navigation.navigate('Home', { name: 'Home' });
@@ -31,18 +30,8 @@ export default function QRScreen({ navigation }) {
       else if(data.indexOf('TKVT_')>-1)
       {
         var ma_van_tai = data.replace('TKVT_', '');
-        // Alert.alert('Thông báo',`Dữ liệu từ kiểm dịch nội tỉnh: ${data}`);
         dispatch(setUrlQRXanh({id_qr:ma_van_tai, loai_qr:'TKVT'}));
-        navigation.navigate('Home', { name: 'Home' });
-        // VanTaiService.getInfoVanTaibyId(ma_van_tai).then((res) => {
-        //   if (res.success && res.data != null) {
-        //     d
-        //     
-        //   }
-        //   else {
-
-        //   }
-        // });
+        navigation.navigate('infoTaiXe', { name: 'infoTaiXe' });
       }
       else
       {

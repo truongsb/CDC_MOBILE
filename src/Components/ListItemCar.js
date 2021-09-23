@@ -4,6 +4,7 @@ import { ListItem, Divider, Button } from 'react-native-elements'
 import { VanTaiService } from '../Api/vantan';
 import moment from "moment";
 import { useSelector } from 'react-redux';
+import { SearchBar } from "react-native-elements";
 const confirmrs = (top, nd) => {
     Alert.alert(
         top,
@@ -13,25 +14,22 @@ const confirmrs = (top, nd) => {
         ]
     )
 }
-export default function ListItemCar({ dataUser, valueSearch }) {
+export default function ListItemCar() {
     const [refresh, setrefresh] = useState(true);
     const [isLoadding, setisLoadding] = useState(false);
-    const [listXe, setlistXe] = useState('');
+    //const [listXe, setlistXe] = useState('');
+    const [listXe, setlistXe] = useState([{ ho_ten: 'Nguyen Dai Ca', bien_so: '50A67795' },{ ho_ten: 'Nguyen Dai Ca', bien_so: '50A67796' }]);
     const [listXeFillter, setlistXeFillter] = useState('');
     const dataLogin = useSelector(state => state.infoLogin);
-
-    // useEffect(() => {
-    //     setdataLogin(dataUser);
-    // }, [dataUser]);
-    const btnConFirmClick = (e, id, name) => {
-        createThreeButtonAlert(e, id, name);
-
+    const [valueSearch, setvalueSearch] = useState('');
+    
+    const onSearchChange = (e) => {
+        setvalueSearch(e)
     }
     const onRefresh = React.useCallback(() => {
         setrefresh(true);
     }, []);
     const convertDataDisplay = (data) => {
-        console.log(data);
         if (data.length > 0) {
             data.map(item => {
                 item.thoi_gian_khai_bao = moment(item.thoi_gian_khai_bao).format('DD/MM/YYYY HH:mm:ss');
@@ -73,54 +71,20 @@ export default function ListItemCar({ dataUser, valueSearch }) {
             setlistXeFillter(listXe);
         }
     }, [valueSearch])
-    const createThreeButtonAlert = (e, id, name) => {
-        Alert.alert(
-            'Xác nhận ' + e + ' cho xe\n' + name + ' ?',
-            '',
-            [
-                {
-                    text: "Không",
-                    onPress: () => console.log("Cancel Pressed"),
-                    style: "cancel"
-                },
-                { text: "CÓ", onPress: () => { if (e === 'checkin') checkin(id); else checkoutTinh(id); }, style: "ok" }
-            ]
-        )
-    };
-    const checkoutTinh = (id) => {
-        VanTaiService.checkOutVanTai(id, dataLogin.ma_nhan_vien_check).then((res) => {
-            if (res.success) {
-                Alert.alert(
-                    'Thông báo',
-                    'Checkout thành công!',
-                    [
-                        { text: 'Xong', onPress: () => { onRefresh(); } }
-                    ]
-                )
-            }
-            else {
-
-            }
-        });
-    }
-    const checkin = (id) => {
-        VanTaiService.checkInVanTai(id, dataLogin.ma_diem_den, dataLogin.ma_nhan_vien_check).then((res) => {
-            if (res.success) {
-                Alert.alert(
-                    'Thông báo',
-                    'Checkin thành công!',
-                    [
-                        { text: 'Xong', onPress: () => { onRefresh(); } }
-                    ]
-                )
-            } else {
-                //   confirmrs("Lỗi check in!", "")
-            }
-        });
-    }
-
+    
     return (
         <View style={styles.container}>
+            <SearchBar
+                placeholder="Nhập 5 số cuối biển số để tìm kiếm...."
+                onChangeText={onSearchChange}
+                onCancel={onSearchChange}
+                value={valueSearch}
+                containerStyle={{
+                    backgroundColor:'#fff',
+                    borderBottomColor:'#fff',
+                    borderTopColor:'#fff'
+                }}
+            />
             {!isLoadding ?
                 <ScrollView
                     // style={styles.scrollView}
@@ -135,58 +99,26 @@ export default function ListItemCar({ dataUser, valueSearch }) {
                     {
                         !(listXeFillter.length > 0) ? <Text style={styles.text}>Không có dữ liệu!</Text> :
                             listXeFillter.map((item, key) => (
-                                <View key={key}>
-                                    <Divider
-                                        style={{ width: "100%" }}
-                                        color="#f0f0f5"
-                                        insetType="left"
-                                        subHeaderStyle={{}}
-                                        width={10}
-                                        orientation="horizontal"
-                                    />
-                                    <ListItem bottomDivider>
+                                    <ListItem 
+                                        bottomDivider 
+                                        containerStyle={{
+                                            borderRadius:8, 
+                                            borderColor:'#046ECE', 
+                                            marginBottom:8, 
+                                            borderWidth:1,
+                                            borderBottomColor:'#046ECE',
+                                            borderBottomWidth:2
+                                        }} 
+                                        key={key}
+                                    >
                                         <ListItem.Content>
                                             <ListItem.Title style={styles.text}>{item.bien_so}</ListItem.Title>
                                             <ListItem.Subtitle>Tên: <Text style={styles.textHoten}>{item.ho_ten}</Text></ListItem.Subtitle>
                                             <ListItem.Subtitle>Giờ vào: <Text style={styles.textTime}>{item.thoi_gian_khai_bao}</Text></ListItem.Subtitle>
                                             <ListItem.Subtitle>Tại chốt: {item.noi_khai_bao_van_tai}</ListItem.Subtitle>
                                         </ListItem.Content>
-                                        <View>
-                                            {!(item.is_checkout) && dataLogin?.is_checkin &&
-                                                <View >
-                                                    {!item.is_checked ?
-                                                        <TouchableHighlight
-                                                            style={[styles.buttonContainer, styles.checkinButton]}
-                                                            onPress={() => { btnConFirmClick("checkin", item.ma_to_khai_van_tai, item.bien_so,) }}>
-                                                            <Text style={styles.loginText}>Checkin</Text>
-                                                        </TouchableHighlight>
-                                                        :
-                                                        <View style={styles.textoutin}>
-                                                            <Text style={styles.outin}>Đã Checkin</Text>
-                                                            <Text style={styles.outin}>{item.thoi_gian_checkin}</Text>
-                                                        </View>
-                                                    }
-                                                </View>
-                                            }
-                                            {dataLogin?.is_checkout &&
-                                                <View>
-                                                    {!item.is_checkout ?
-                                                        <TouchableHighlight
-                                                            style={[styles.buttonContainer, styles.checkoutButton]}
-                                                            onPress={() => { btnConFirmClick("checkout", item.ma_to_khai_van_tai, item.bien_so,) }}>
-                                                            <Text style={styles.loginText}>Checkout</Text>
-                                                        </TouchableHighlight>
-                                                        :
-                                                        <View style={styles.textoutin}>
-                                                            <Text style={styles.outin}>Đã ra khỏi tỉnh</Text>
-                                                        </View>
-                                                    }
-                                                </View>}
-                                        </View>
                                     </ListItem>
-                                </View>
                             ))
-
                     }
                 </ScrollView>
                 : <ActivityIndicator size="small" color="#0000ff" />}

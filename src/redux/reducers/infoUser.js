@@ -48,11 +48,15 @@ export function infoLogin(state = initialStateUserlogin, action) {
 }
 
 export function setUrlQRVanTai(state = urlQrLuongXanhVanTai, action) {
+    console.log(action.type);
     switch (action.type) {
         case 'GET_SUCCESS':
             return action.payload;
         case 'RESET_QR':
-            return state;
+            return {
+                id_qr: '',
+                loai_qr: ''
+            };
         default:
             return state;
     }

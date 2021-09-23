@@ -15,7 +15,16 @@ const Drawer = createDrawerNavigator();
 
 function MainScreen() {
   return (
-    <MainStack.Navigator >
+    <MainStack.Navigator
+    screenOptions={{
+
+      headerTitleStyle:{
+          color:'#005AAB',
+          
+      },
+      headerTitleAlign:'center'
+  }}
+     >
       <MainStack.Screen
         name="Home"
         component={HomeScreen}

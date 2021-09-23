@@ -1,26 +1,11 @@
-import React, { useState, useEffect, Fragment } from 'react'
-import { Header, SearchBar } from "react-native-elements";
-import { Text, TouchableOpacity, Image, StyleSheet, View, Alert, TouchableWithoutFeedback, Keyboard, TouchableHighlight, ActivityIndicator, TextInput } from 'react-native';
+import React, { useState, useEffect } from 'react'
+import { Header } from "react-native-elements";
+import { Text, TouchableOpacity, Image, StyleSheet, View, Alert, TouchableHighlight, ActivityIndicator } from 'react-native';
 import { WebView } from 'react-native-webview';
-import ListItemCar from '../Components/ListItemCar';
 import { useSelector, useDispatch } from 'react-redux';
 import { resetUrlQRXanh } from "../redux/actions";
-import { VanTaiService } from '../Api/vantan';
-import { ModalQRVanTaiCheckQr } from '../Components/ModalQRVanTaiCheckQr.js'
-import Modal from "react-native-modal";
-import SearchableDropdown from 'react-native-searchable-dropdown';
 import { ScrollView } from 'react-native-gesture-handler';
-// import { red } from 'color-name';
 
-const confirmrs = (top, nd) => {
-    Alert.alert(
-        top,
-        nd,
-        [
-            { text: 'OK' },
-        ]
-    )
-}
 export default function HomeScreen({ navigation }) {
     const url_qr_xanh = useSelector(state => state.setUrlQRVanTai)
     const dispatch = useDispatch();
@@ -28,7 +13,7 @@ export default function HomeScreen({ navigation }) {
     const dataLogin = useSelector(state => state.infoLogin);
     const [isLoadding, setisLoadding] = useState(false);
     useEffect(() => {
-        if (url_qr_xanh && url_qr_xanh.loai_qr !== undefined && url_qr_xanh.loai_qr !== '') {
+        if (url_qr_xanh && url_qr_xanh.loai_qr !== undefined && url_qr_xanh.loai_qr !== '' && url_qr_xanh.loai_qr==='DRVN') {
             seturlQrLuongXanh(url_qr_xanh.id_qr)
         }
         else {
@@ -51,7 +36,6 @@ export default function HomeScreen({ navigation }) {
         [
             {
               text: "Thoát",
-              onPress: () => console.log("Cancel Pressed"),
               style: "cancel"
             },
             { text: "Quá cảnh", onPress: () => navigation.navigate('infoTaiXe', { name: 'infoTaiXe', xe_qua_canh: 1 }) },
@@ -72,7 +56,7 @@ export default function HomeScreen({ navigation }) {
                 }}
             />
             <ScrollView
-                contentContainerStyle={{flexGrow: 1}}
+                contentContainerStyle={{flexGrow: 1,}}
                 containerStyle={{ backgroundColor: 'red' }}
             >
                 <View style={{flex: 1}}>
@@ -89,6 +73,7 @@ export default function HomeScreen({ navigation }) {
                 <View style={styles.webview}>
                     {urlQrLuongXanh ?
                         <WebView
+                            style={{justifyContent:'center'}}
                             source={{ uri: `https://vantai.drvn.gov.vn/tokhaiyteQR?token=${urlQrLuongXanh}` }}
                             renderLoading={<ActivityIndicator size="large" color="#00ff00" />}
                             renderError={<Text style={styles.textFail}>Dữ liệu vừa quét không đúng!</Text>}
@@ -169,7 +154,7 @@ const styles = StyleSheet.create({
     },
     webview: {
         flex: 1,
-        height:'100%'
+        height:'95%',
     },
     textFail: {
         fontSize: 20,
