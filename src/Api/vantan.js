@@ -9,7 +9,9 @@ export const VanTaiService = {
     checkOutVanTai,
     getQrLuongXanh,
     importQRLuongXanh,
-    getDanhSachDiemDen
+    getDanhSachDiemDen,
+    getXaDiemDenTheoHuyen,
+    importDataNoiTinh
   };
 ///////////////////////////////////////////////////////////////////////////////////////
 async function loginBySdt(sdt) {
@@ -28,6 +30,7 @@ async function loginBySdt(sdt) {
     return handleError(error);
   }
 }
+
 ///////////////////////////////////////////////////////////////////////////////////////
 async function getDsVanTai(sdt, ma_diem_den) {
   try {
@@ -189,7 +192,53 @@ async function getDanhSachDiemDen() {
     return handleError(error);
   }
 }
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+async function getXaDiemDenTheoHuyen(ma_huyen) {
+  try {
+      return await axios({
+          method: 'Get',
+          headers: authHeader(),
+          url : `${configs.apiUrl}/api/common/danh-muc-xa`,
+          params: {
+              'ma_huyen' : ma_huyen
+          }
+      }).then((res) => {
+          return res.data;
+      })
+  } catch (error) {
+      return handleError(error);
+  }
+}
+///////////////////////////////////////////////////////////////////////////////////////
+async function importDataNoiTinh(ho_ten, so_dien_thoai, bien_so, so_nguoi, ma_chot,lst_diem_den, token) {
+  try {
+    return await axios({
+      method: "POST",
+      headers: {
+        'Authorization': 'Bearer ' + token,
+        'Content-Type': 'application/json; charset=utf-8',
+      },
+      url: `${configs.apiUrl}/api/khai-bao-noi-tinh`,
+      data: {
+        'ho_ten': ho_ten,
+        'so_dien_thoai': so_dien_thoai,
+        'bien_so': bien_so,
+        'so_nguoi': so_nguoi,
+        'ma_chot':ma_chot,
+        'lst_diem_den': lst_diem_den
+      },
+    }).then((res) => {
+      return res.data;
+    });
+  } catch (error) {
+    console.log("error",error);
+    return handleError(error);
+  }
+}
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
 function handleError(error) {
   if (error.isAxiosError && error?.response?.status === 401) {
     // history.push('/login');

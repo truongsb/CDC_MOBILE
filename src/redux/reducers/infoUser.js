@@ -14,7 +14,8 @@ const initialStateUserlogin = {
     token: '',
     ten_chot: "",
     ma_chot:'',
-    ma_nhan_vien_kc: ''
+    ma_nhan_vien_kc: '',
+    ma_huyen: ''
 }
 const urlQrLuongXanhVanTai= {
     id_qr: '',
@@ -40,7 +41,8 @@ export function infoLogin(state = initialStateUserlogin, action) {
                 is_chot: action.payload.is_chot,
                 token: action.payload.token,
                 ma_chot:action.payload.ma_chot,
-                ma_nhan_vien_kc:action.payload.ma_nhan_vien_kc
+                ma_nhan_vien_kc:action.payload.ma_nhan_vien_kc,
+                ma_huyen: action.payload.id_huyen
             };
         default:
             return state;
@@ -48,7 +50,6 @@ export function infoLogin(state = initialStateUserlogin, action) {
 }
 
 export function setUrlQRVanTai(state = urlQrLuongXanhVanTai, action) {
-    console.log(action.type);
     switch (action.type) {
         case 'GET_SUCCESS':
             return action.payload;
